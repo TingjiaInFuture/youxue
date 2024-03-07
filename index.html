@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>游学系统</title>
     <style>
@@ -9,12 +10,14 @@
             padding: 0;
             background-color: #f5f5f5;
         }
+
         header {
             background-color: #007bff;
             color: white;
             text-align: center;
             padding: 20px;
         }
+
         nav ul {
             list-style-type: none;
             padding: 0;
@@ -23,10 +26,12 @@
             background-color: #e9ecef;
             margin-bottom: 20px;
         }
+
         nav ul li a {
             color: black;
             text-decoration: none;
         }
+
         main {
             margin: 0 auto;
             width: 80%;
@@ -34,6 +39,7 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         footer {
             background-color: #007bff;
             color: white;
@@ -43,67 +49,52 @@
             bottom: 0;
             width: 100%;
         }
+
+        #diaryContainer div {
+            color: black;
+            margin: 10px;
+            font-size: 16px;
+            line-height: 1.5;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        /* 设置所有内容部分默认为隐藏 */
+        .content-section {
+            display: none;
+        }
+
+        /* 设置第一个内容部分（推荐）默认为显示 */
+        .content-section:first-of-type {
+            display: block;
+        }
     </style>
-    <script>
-        const apiBaseUrl = 'http://0.0.0.0:9000';
-
-        async function fetchDiaries() {
-            const response = await fetch(`${apiBaseUrl}/diaries`);
-            const data = await response.json();
-            const diaryContainer = document.getElementById('diaryContainer');
-            data.diaries.forEach(diary => {
-                const diaryElement = document.createElement('div');
-                diaryElement.textContent = diary.text;
-                diaryContainer.appendChild(diaryElement);
-            });
-        }
-
-        async function addDiary(event) {
-            event.preventDefault();
-            const diaryText = document.getElementById('diaryText').value;
-            const authorId = document.getElementById('authorId').value;
-            const response = await fetch(`${apiBaseUrl}/diaries`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ diary: diaryText, authorId })
-            });
-            const data = await response.json();
-            if (data.diaryId) {
-                alert('Diary added successfully!');
-            } else {
-                alert('Failed to add diary.');
-            }
-        }
-
-        // 当页面加载完成后，获取游学日记列表
-        window.onload = fetchDiaries;
-    </script>
 </head>
+
 <body>
     <header>
         <h1>欢迎来到游学系统</h1>
     </header>
     <nav>
         <ul>
-            <li><a href="#推荐">游学推荐</a></li>
-            <li><a href="#规划">游学路线规划</a></li>
-            <li><a href="#查询">场所查询</a></li>
-            <li><a href="#日记">游学日记管理</a></li>
+            <li><a href="#推荐" class="nav-link">游学推荐</a></li>
+            <li><a href="#规划" class="nav-link">游学路线规划</a></li>
+            <li><a href="#查询" class="nav-link">场所查询</a></li>
+            <li><a href="#日记" class="nav-link">游学日记管理</a></li>
         </ul>
     </nav>
     <main>
-        <section id="推荐">
-            <!-- 在这里添加游学推荐的内容 -->
+        <section id="推荐" class="content-section">
+            <div id="recommendedDiaryContainer"></div>
         </section>
-        <section id="规划">
+        <section id="规划" class="content-section">
             <!-- 在这里添加游学路线规划的内容 -->
         </section>
-        <section id="查询">
+        <section id="查询" class="content-section">
             <!-- 在这里添加场所查询的内容 -->
         </section>
-        <section id="日记">
+        <section id="日记" class="content-section">
             <form onsubmit="addDiary(event)">
                 <label for="diaryText">游学日记内容：</label><br>
                 <textarea id="diaryText" name="diaryText" rows="4" cols="50"></textarea><br>
@@ -117,5 +108,7 @@
     <footer>
         <p>版权所有 © 2024</p>
     </footer>
+    <script src="diaries.js"></script>
 </body>
+
 </html>

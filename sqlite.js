@@ -1,5 +1,5 @@
 const fs = require("fs");
-const dbFile = `/youxue.db`;
+const dbFile = `youxue.db`;
 const exists = fs.existsSync(dbFile);
 const sqlite3 = require("sqlite3").verbose();
 const dbWrapper = require("sqlite");

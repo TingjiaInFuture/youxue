@@ -4,10 +4,14 @@
  * Uses sqlite.js to connect to db
  */
 
-const fastify = require("fastify")({
-  // Set this to true for detailed logging:
-  logger: false
+const fastify = require("fastify")({ logger: true});
+
+const cors = require('@fastify/cors');
+fastify.register(cors, {
+  origin: true,
+  credentials: true
 });
+
 
 fastify.register(require("@fastify/formbody"));
 
@@ -83,7 +87,7 @@ fastify.post("/diaries", async (request, reply) => {
   let data = {};
   data.diaryId = await db.addDiary(request.body.diary, request.body.authorId);
   if (!data.diaryId) {
-    data.error = "Failed to add diary.";
+    data.error = "Failed to add diary!";
   }
   const status = data.diaryId ? 201 : 400;
   reply.status(status).send(data);
