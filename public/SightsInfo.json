@@ -1,0 +1,102 @@
+{
+    "items": {
+      "item": [
+        {
+          "nameSight": "天安门广场",
+          "views": "120",
+          "type": "景点",
+          "score": "4.8"
+        },
+        {
+          "nameSight": "故宫博物院",
+          "views": "180",
+          "type": "景点",
+          "score": "4.7"
+        },
+        {
+          "nameSight": "玉渊潭公园",
+          "views": "200",
+          "type": "景点",
+          "score": "4.5"
+        },
+        {
+          "nameSight": "颐和园",
+          "views": "20",
+          "type": "景点",
+          "score": "4.2"
+        },
+        {
+          "nameSight": "圆明园",
+          "views": "10",
+          "type": "景点",
+          "score": "4.3"
+        },
+        {
+          "nameSight": "中国人民大学",
+          "views": "60",
+          "type": "学校",
+          "score": "4.1"
+        },
+        {
+          "nameSight": "清华大学",
+          "views": "50",
+          "type": "学校",
+          "score": "4.9"
+        },
+        {
+          "nameSight": "北京大学",
+          "views": "240",
+          "type": "学校",
+          "score": "4.5"
+        },
+        {
+          "nameSight": "北京理工大学",
+          "views": "125",
+          "type": "学校",
+          "score": "4.6"
+        },
+        {
+          "nameSight": "北京航空航天大学",
+          "views": "230",
+          "type": "学校",
+          "score": "4.7"
+        },
+        {
+          "nameSight": "中央民族大学",
+          "views": "213",
+          "type": "学校",
+          "score": "4.1"
+        },
+        {
+          "nameSight": "北京邮电大学",
+          "views": "222",
+          "type": "学校",
+          "score": "4.8"
+        },
+        {
+          "nameSight": "中央财经大学",
+          "views": "123",
+          "type": "学校",
+          "score": "4.1"
+        },
+        {
+          "nameSight": "北京体育大学",
+          "views": "55",
+          "type": "学校",
+          "score": "4.2"
+        },
+        {
+          "nameSight": "中央传媒大学",
+          "views": "199",
+          "type": "学校",
+          "score": "4.3"
+        },
+        {
+          "nameSight": "中国石油大学（北京）",
+          "views": "89",
+          "type": "学校",
+          "score": "4.4"
+        }
+      ]
+    }
+  }
