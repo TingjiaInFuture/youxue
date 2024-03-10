@@ -18,9 +18,9 @@
         "node": "18.x"
     },
     "repository": {
-        "url": "https://github.com/TingjiaInFuture/server"
+        "url": "https://github.com/TingjiaInFuture/youxue/web"
     },
-    "license": "MIT",
+    "license": "Apache-2.0",
     "keywords": [
         "node",
         "sqlite"
