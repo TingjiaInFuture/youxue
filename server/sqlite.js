@@ -14,14 +14,14 @@ dbWrapper
 
     try {
       if (!exists) {
-          await db.run(`
+        await db.run(`
               CREATE TABLE Users (
                   id INTEGER PRIMARY KEY AUTOINCREMENT, 
                   username TEXT, 
                   password TEXT
               )
           `);
-          await db.run(`
+        await db.run(`
               CREATE TABLE StudyTourDiaries (
                   id INTEGER PRIMARY KEY AUTOINCREMENT,
                   diary TEXT,
@@ -33,10 +33,10 @@ dbWrapper
               )
           `);
       }
-  } catch (error) {
+    } catch (error) {
       console.error(error);
-  }
-  
+    }
+
   });
 
 // Check if a username is already taken
@@ -76,10 +76,6 @@ module.exports = {
     }
     return userId;
   },
-
-
-
-
 
   // 登录验证
   login: async (username, password) => {
@@ -121,7 +117,7 @@ module.exports = {
     return false;
   },
 
- //上传游学日记
+  //上传游学日记
   addDiary: async (diary, authorId) => {
     let diaryId = 0;
     try {
@@ -151,30 +147,30 @@ module.exports = {
   },
 
   // 获取推荐的游学日记列表
-getRecommendedDiaries: async () => {
-  let diaries = [];
-  try {
-    diaries = await db.all("SELECT * FROM StudyTourDiaries");
-  } catch (dbError) {
-    console.error(dbError);
-  }
+  getRecommendedDiaries: async () => {
+    let diaries = [];
+    try {
+      diaries = await db.all("SELECT * FROM StudyTourDiaries");
+    } catch (dbError) {
+      console.error(dbError);
+    }
 
-  // 使用冒泡排序算法对游学日记进行排序
-  for (let i = 0; i < diaries.length - 1; i++) {
-    for (let j = 0; j < diaries.length - 1 - i; j++) {
-      if (diaries[j].viewCount < diaries[j + 1].viewCount || 
+    // 使用冒泡排序算法对游学日记进行排序
+    for (let i = 0; i < diaries.length - 1; i++) {
+      for (let j = 0; j < diaries.length - 1 - i; j++) {
+        if (diaries[j].viewCount < diaries[j + 1].viewCount ||
           (diaries[j].viewCount === diaries[j + 1].viewCount && diaries[j].rating < diaries[j + 1].rating)) {
-        let temp = diaries[j];
-        diaries[j] = diaries[j + 1];
-        diaries[j + 1] = temp;
+          let temp = diaries[j];
+          diaries[j] = diaries[j + 1];
+          diaries[j + 1] = temp;
+        }
       }
     }
+
+    return diaries;
   }
 
-  return diaries;
-}
 
 
-  
 
 };

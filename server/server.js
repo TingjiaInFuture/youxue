@@ -4,7 +4,7 @@
  * Uses sqlite.js to connect to db
  */
 
-const fastify = require("fastify")({ logger: true});
+const fastify = require("fastify")({ logger: true });
 
 const cors = require('@fastify/cors');
 fastify.register(cors, {
@@ -44,11 +44,18 @@ fastify.post("/register", async (request, reply) => {
     data.success = false;
     data.error = "Username is already taken.";
   } else {
-    data.success = await db.addUser(request.body.username, request.body.password);
+    const userId = await db.addUser(request.body.username, request.body.password);
+    if (userId) {
+      data.success = true;
+      data.userId = userId;  
+    } else {
+      data.success = false;
+    }
   }
   const status = data.success ? 201 : 400;
   reply.status(status).send(data);
 });
+
 
 
 fastify.get("/checkUsername", async (request, reply) => {
