@@ -21,12 +21,17 @@ async function fetchDiaries() {
         ratingInput.name = 'rating';
         ratingInput.min = '1';
         ratingInput.max = '5';
+        ratingInput.style.display = 'none';  // 将评分输入框默认设置为隐藏
         ratingButton.textContent = '提交评分';
+        ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
         ratingButton.onclick = function() {
             rateDiary(diary.id, document.getElementById('rating').value);
         };
         title.addEventListener('click', function() {
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            const displayStyle = content.style.display === 'none' ? 'block' : 'none';
+            content.style.display = displayStyle;
+            ratingInput.style.display = displayStyle;  // 将评分输入框的显示状态与日记内容的显示状态绑定在一起
+            ratingButton.style.display = displayStyle;  // 将评分按钮的显示状态与日记内容的显示状态绑定在一起
             increaseViewCount(diary.id);
         });
         diaryElement.appendChild(title);
@@ -36,6 +41,7 @@ async function fetchDiaries() {
         diaryContainer.appendChild(diaryElement);
     });
 }
+
 
 async function increaseViewCount(diaryId) {
     const response = await fetch(`${apiBaseUrl}/diaries/${diaryId}/view`, {
@@ -92,12 +98,12 @@ async function login(event) {
         body: JSON.stringify({ username, password })
     });
     const data = await response.json();
-    if (data.userId !== undefined && data.userId !== null) {
-        alert('登录成功！');
-        // 保存用户ID
+    if (data.userId) {
+        document.getElementById('message').textContent = '登录成功！';
+        // 在这里保存用户ID
         localStorage.setItem('userId', data.userId);
     } else {
-        alert('登录失败！');
+        document.getElementById('message').textContent = '登录失败：' + data.error;
     }
 }
 
@@ -113,13 +119,27 @@ async function register(event) {
         body: JSON.stringify({ username, password })
     });
     const data = await response.json();
-    
-    if (data.userId !== undefined && data.userId !== null) {
-        alert('注册成功！');
-        // 保存用户ID
+    if (data.userId) {
+        document.getElementById('message').textContent = '注册成功！';
+        // 在这里保存用户ID
         localStorage.setItem('userId', data.userId);
     } else {
-        alert('注册失败！');
+        document.getElementById('message').textContent = '注册失败：' + data.error;
+    }
+}
+
+function toggleForms() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toggleButton = document.querySelector('#用户 button');
+    if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        toggleButton.textContent = '切换到注册';
+    } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        toggleButton.textContent = '切换到登录';
     }
 }
 
