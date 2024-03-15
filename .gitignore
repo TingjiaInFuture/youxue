@@ -1,4 +1,3 @@
-server/
-node_modules/
+
 .gitignore
-package-lock.json
+
