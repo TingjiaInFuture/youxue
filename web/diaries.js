@@ -1,4 +1,4 @@
-const apiBaseUrl = 'http://127.0.0.1:9000';
+const apiBaseUrl = 'http://youxueserver-a-vovwoaqlxs.cn-hangzhou.fcapp.run';
 
 async function fetchDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
