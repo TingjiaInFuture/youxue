@@ -35,19 +35,8 @@
         main {
             margin: 0 auto;
             width: 80%;
-            background-color: white;
+            background-color:#f5f5f5;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        footer {
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
         }
 
         #diaryContainer div {
@@ -65,10 +54,10 @@
             display: none;
         }
 
-        /* 设置第一个内容部分（推荐）默认为显示 */
+        /* 设置第一个内容部分（推荐）默认为显示
         .content-section:first-of-type {
             display: block;
-        }
+        } */
     </style>
 </head>
 
@@ -86,7 +75,7 @@
     </nav>
     <main>
         <section id="推荐" class="content-section">
-            <div id="recommendedDiaryContainer"></div>
+            <!-- <div id="recommendedDiaryContainer"></div> -->
         </section>
         <section id="规划" class="content-section">
             <!-- 在这里添加游学路线规划的内容 -->
@@ -103,11 +92,15 @@
                 <input type="submit" value="提交">
             </form>
             <div id="diaryContainer"></div>
+            <div>
+                <label for="diaryId">日记ID:</label><br>
+                <input type="text" id="diaryId" name="diaryId"><br>
+                <label for="rating">评分:</label><br>
+                <input type="number" id="rating" name="rating" min="1" max="5"><br>
+                <button onclick="rateDiary(document.getElementById('diaryId').value, document.getElementById('rating').value)">提交评分</button>
+            </div>
         </section>
     </main>
-    <footer>
-        <p>版权所有 © 2024</p>
-    </footer>
     <script src="diaries.js"></script>
 </body>
 

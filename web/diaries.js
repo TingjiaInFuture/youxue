@@ -1,15 +1,51 @@
 const apiBaseUrl = 'http://127.0.0.1:9000';
 
 async function fetchDiaries() {
-    const response = await fetch(`${apiBaseUrl}/diaries`);
+    const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
     const data = await response.json();
     const diaryContainer = document.getElementById('diaryContainer');
     data.diaries.forEach(diary => {
         const diaryElement = document.createElement('div');
-        diaryElement.textContent = diary.diary;
+        const title = document.createElement('h2');
+        const content = document.createElement('p');
+        const firstLineEndIndex = diary.diary.indexOf('\n');
+        title.textContent = diary.diary.slice(0, firstLineEndIndex);
+        content.textContent = diary.diary.slice(firstLineEndIndex + 1);
+        content.style.display = 'none';
+        title.addEventListener('click', function() {
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            increaseViewCount(diary.id);
+        });
+        diaryElement.appendChild(title);
+        diaryElement.appendChild(content);
         diaryContainer.appendChild(diaryElement);
     });
 }
+
+async function increaseViewCount(diaryId) {
+    const response = await fetch(`${apiBaseUrl}/diaries/${diaryId}/view`, {
+        method: 'PUT'
+    });
+    const data = await response.json();
+    if (!data.success) {
+        console.error('Failed to increase view count.');
+    }
+}
+
+async function rateDiary(diaryId, rating) {
+    const response = await fetch(`${apiBaseUrl}/diaries/${diaryId}/rate`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ rating })
+    });
+    const data = await response.json();
+    if (!data.success) {
+        console.error('Failed to update rating.');
+    }
+}
+
 
 async function addDiary(event) {
     event.preventDefault();
@@ -72,6 +108,4 @@ window.onload = function () {
             }
         });
     });
-    // fetchDiaries();
-    // fetchRecommendedDiaries();
 };
