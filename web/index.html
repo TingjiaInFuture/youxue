@@ -58,6 +58,33 @@
         .content-section:first-of-type {
             display: block;
         } */
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -67,6 +94,7 @@
     </header>
     <nav>
         <ul>
+            <li><a href="#用户" class="nav-link">用户</a></li>
             <li><a href="#推荐" class="nav-link">游学推荐</a></li>
             <li><a href="#规划" class="nav-link">游学路线规划</a></li>
             <li><a href="#查询" class="nav-link">场所查询</a></li>
@@ -74,6 +102,24 @@
         </ul>
     </nav>
     <main>
+        <section id="用户" class="content-section">
+            <button onclick="toggleForms()">切换到注册</button>
+            <form id="loginForm" onsubmit="login(event)">
+                <label for="username">用户名：</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">密码：</label><br>
+                <input type="password" id="password" name="password"><br>
+                <input type="submit" value="登录">
+            </form>
+            <form id="registerForm" onsubmit="register(event)" style="display: none;">
+                <label for="newUsername">用户名：</label><br>
+                <input type="text" id="newUsername" name="newUsername"><br>
+                <label for="newPassword">密码：</label><br>
+                <input type="password" id="newPassword" name="newPassword"><br>
+                <input type="submit" value="注册">
+            </form>
+            <p id="message"></p>
+        </section>
         <section id="推荐" class="content-section">
             <!-- <div id="recommendedDiaryContainer"></div> -->
         </section>
@@ -87,18 +133,9 @@
             <form onsubmit="addDiary(event)">
                 <label for="diaryText">游学日记内容：</label><br>
                 <textarea id="diaryText" name="diaryText" rows="4" cols="50"></textarea><br>
-                <label for="authorId">作者ID:</label><br>
-                <input type="text" id="authorId" name="authorId"><br>
                 <input type="submit" value="提交">
             </form>
             <div id="diaryContainer"></div>
-            <div>
-                <label for="diaryId">日记ID:</label><br>
-                <input type="text" id="diaryId" name="diaryId"><br>
-                <label for="rating">评分:</label><br>
-                <input type="number" id="rating" name="rating" min="1" max="5"><br>
-                <button onclick="rateDiary(document.getElementById('diaryId').value, document.getElementById('rating').value)">提交评分</button>
-            </div>
         </section>
     </main>
     <script src="diaries.js"></script>
