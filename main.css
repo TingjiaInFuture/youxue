@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+    background-color: #e9ecef;
+    margin-bottom: 20px;
+}
+
+nav ul li a {
+    color: black;
+    text-decoration: none;
+}
+
+main {
+    margin: 0 auto;
+    width: 80%;
+    background-color:#f5f5f5;
+    padding: 20px;
+}
+
+#diaryContainer div {
+    color: black;
+    margin: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+/* 设置所有内容部分默认为隐藏 */
+.content-section {
+    display: none;
+}
+
+/* 设置第一个内容部分（推荐）默认为显示
+.content-section:first-of-type {
+    display: block;
+} */
+
+form {
+    margin-bottom: 20px;
+}
+
+input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    opacity: 0.8;
+}
