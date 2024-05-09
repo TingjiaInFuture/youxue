@@ -1,4 +1,4 @@
-const apiBaseUrl = 'https://youxueserver-a-vovwoaqlxs.cn-hangzhou.fcapp.run';
+const apiBaseUrl = 'https://youxueserver-a-wcwgrndlcd.cn-hangzhou.fcapp.run';
 
 async function fetchREDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
