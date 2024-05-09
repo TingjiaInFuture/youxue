@@ -76,3 +76,15 @@ button {
 button:hover {
     opacity: 0.8;
 }
+
+input[type="submit"] {
+    background-color: #5885d3;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 20%;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
