@@ -69,7 +69,8 @@ async function rateDiary(diaryId, rating) {
 
 async function addDiary(event) {
     event.preventDefault();
-    const diaryText = document.getElementById('diaryText').value;
+    const diaryTextElement = document.getElementById('diaryText');
+    const diaryText = diaryTextElement.value;
     const authorId = localStorage.getItem('userId');
     const response = await fetch(`${apiBaseUrl}/diaries`, {
         method: 'POST',
@@ -81,6 +82,7 @@ async function addDiary(event) {
     const data = await response.json();
     if (data.diaryId) {
         alert('Diary added successfully!');
+        diaryTextElement.value = '';  // 清空日记输入框
     } else {
         alert('Failed to add diary.');
     }
