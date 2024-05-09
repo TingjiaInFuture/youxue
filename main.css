@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Roboto, Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f5f5f5;
@@ -41,17 +41,12 @@ main {
     background-color: #f5f5f5;
     border: 1px solid #ccc;
     padding: 10px;
+    border-radius: 5px;
 }
 
-/* 设置所有内容部分默认为隐藏 */
 .content-section {
     display: none;
 }
-
-/* 设置第一个内容部分（推荐）默认为显示
-.content-section:first-of-type {
-    display: block;
-} */
 
 form {
     margin-bottom: 20px;
@@ -64,6 +59,7 @@ input[type="text"], input[type="password"], textarea {
     display: inline-block;
     border: 1px solid #ccc;
     box-sizing: border-box;
+    border-radius: 5px;
 }
 
 button {
@@ -74,6 +70,7 @@ button {
     border: none;
     cursor: pointer;
     width: 100%;
+    border-radius: 5px;
 }
 
 button:hover {

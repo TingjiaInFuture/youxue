@@ -1,6 +1,6 @@
-const apiBaseUrl = 'https://youxueserver-a-vovwoaqlxs.cn-hangzhou.fcapp.run';
-
-async function fetchDiaries() {
+// const apiBaseUrl = 'https://youxueserver-a-vovwoaqlxs.cn-hangzhou.fcapp.run';
+const apiBaseUrl = 'http://localhost:9000';
+async function fetchREDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
     const data = await response.json();
     const diaryContainer = document.getElementById('diaryContainer');
@@ -143,6 +143,65 @@ function toggleForms() {
     }
 }
 
+// KMP搜索算法
+function KMPSearch(pattern, text) {
+    if (pattern.length === 0) return 0; // Immediate match
+
+    // Compute longest suffix-prefix table
+    const lsp = [0]; // Base case
+    for (let i = 1; i < pattern.length; i++) {
+        let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+        while (j > 0 && pattern.charAt(i) !== pattern.charAt(j))
+            j = lsp[j - 1];
+        if (pattern.charAt(i) === pattern.charAt(j))
+            j++;
+        lsp.push(j);
+    }
+
+    // Walk through text string
+    let j = 0; // Number of chars matched in pattern
+    for (let i = 0; i < text.length; i++) {
+        while (j > 0 && text.charAt(i) !== pattern.charAt(j))
+            j = lsp[j - 1]; // Fall back in the pattern
+        if (text.charAt(i) === pattern.charAt(j)) {
+            j++; // Next char matched, increment position
+            if (j === pattern.length)
+                return i - (j - 1);
+        }
+    }
+    return -1; // Not found
+}
+
+// 搜索函数
+async function search(query) {
+    const response = await fetch(`${apiBaseUrl}/diaries`);
+    const data = await response.json();
+    const diaries = data.diaries;
+    const result = [];
+    diaries.forEach(diary => {
+        if (KMPSearch(query, diary.diary) !== -1) {
+            result.push(diary);
+        }
+    });
+    return result;
+}
+
+// 在JavaScript中添加处理搜索表单提交的函数
+async function searchDiary(event) {
+    event.preventDefault();
+    const searchText = document.getElementById('searchText').value;
+    const result = await search(searchText);
+    const diaryContainer = document.getElementById('diaryContainer');
+    diaryContainer.innerHTML = '';
+    result.forEach(diary => {
+        const diaryElement = document.createElement('p');
+        diaryElement.textContent = diary.diary;
+        diaryContainer.appendChild(diaryElement);
+    });
+}
+
+
+
 window.onload = function () {
     // 获取所有的导航链接和内容部分
     const navLinks = document.querySelectorAll('.nav-link');
@@ -165,7 +224,7 @@ window.onload = function () {
 
             // 如果是“游学日记管理”链接，那么获取日记
             if (this.getAttribute('href') === '#日记') {
-                fetchDiaries();
+                fetchREDiaries();
             }
         });
     });

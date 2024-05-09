@@ -47,7 +47,13 @@
         <section id="查询" class="content-section">
             <!-- 在这里添加场所查询的内容 -->
         </section>
+        <!-- 在HTML中添加搜索表单 -->
         <section id="日记" class="content-section">
+            <form onsubmit="searchDiary(event)">
+                <label for="searchText">搜索日记：</label><br>
+                <input type="text" id="searchText" name="searchText"><br>
+                <input type="submit" value="搜索">
+            </form>
             <form onsubmit="addDiary(event)">
                 <label for="diaryText">游学日记内容：</label><br>
                 <textarea id="diaryText" name="diaryText" rows="4" cols="50"></textarea><br>
