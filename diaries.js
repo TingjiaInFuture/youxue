@@ -1,5 +1,40 @@
 const apiBaseUrl = 'https://youxueserver-a-wcwgrndlcd.cn-hangzhou.fcapp.run';
 
+function renderDiary(diary, diaryContainer) {
+    const diaryElement = document.createElement('div');
+    const title = document.createElement('h2');
+    const content = document.createElement('p');
+    const ratingInput = document.createElement('input');
+    const ratingButton = document.createElement('button');
+    const firstLineEndIndex = diary.diary.indexOf('\n');
+    title.textContent = diary.diary.slice(0, firstLineEndIndex);
+    content.textContent = diary.diary.slice(firstLineEndIndex + 1);
+    content.style.display = 'none';
+    ratingInput.type = 'number';
+    ratingInput.id = 'rating';
+    ratingInput.name = 'rating';
+    ratingInput.min = '1';
+    ratingInput.max = '5';
+    ratingInput.style.display = 'none';  // 将评分输入框默认设置为隐藏
+    ratingButton.textContent = '提交评分';
+    ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
+    ratingButton.onclick = function() {
+        rateDiary(diary.id, document.getElementById('rating').value);
+    };
+    title.addEventListener('click', function() {
+        const displayStyle = content.style.display === 'none' ? 'block' : 'none';
+        content.style.display = displayStyle;
+        ratingInput.style.display = displayStyle;  // 将评分输入框的显示状态与日记内容的显示状态绑定在一起
+        ratingButton.style.display = displayStyle;  // 将评分按钮的显示状态与日记内容的显示状态绑定在一起
+        increaseViewCount(diary.id);
+    });
+    diaryElement.appendChild(title);
+    diaryElement.appendChild(content);
+    diaryElement.appendChild(ratingInput);
+    diaryElement.appendChild(ratingButton);
+    diaryContainer.appendChild(diaryElement);
+}
+
 async function fetchREDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
     const data = await response.json();
@@ -7,38 +42,7 @@ async function fetchREDiaries() {
     // 清空日记容器
     diaryContainer.innerHTML = '';
     data.diaries.forEach(diary => {
-        const diaryElement = document.createElement('div');
-        const title = document.createElement('h2');
-        const content = document.createElement('p');
-        const ratingInput = document.createElement('input');
-        const ratingButton = document.createElement('button');
-        const firstLineEndIndex = diary.diary.indexOf('\n');
-        title.textContent = diary.diary.slice(0, firstLineEndIndex);
-        content.textContent = diary.diary.slice(firstLineEndIndex + 1);
-        content.style.display = 'none';
-        ratingInput.type = 'number';
-        ratingInput.id = 'rating';
-        ratingInput.name = 'rating';
-        ratingInput.min = '1';
-        ratingInput.max = '5';
-        ratingInput.style.display = 'none';  // 将评分输入框默认设置为隐藏
-        ratingButton.textContent = '提交评分';
-        ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
-        ratingButton.onclick = function() {
-            rateDiary(diary.id, document.getElementById('rating').value);
-        };
-        title.addEventListener('click', function() {
-            const displayStyle = content.style.display === 'none' ? 'block' : 'none';
-            content.style.display = displayStyle;
-            ratingInput.style.display = displayStyle;  // 将评分输入框的显示状态与日记内容的显示状态绑定在一起
-            ratingButton.style.display = displayStyle;  // 将评分按钮的显示状态与日记内容的显示状态绑定在一起
-            increaseViewCount(diary.id);
-        });
-        diaryElement.appendChild(title);
-        diaryElement.appendChild(content);
-        diaryElement.appendChild(ratingInput);
-        diaryElement.appendChild(ratingButton);
-        diaryContainer.appendChild(diaryElement);
+        renderDiary(diary, diaryContainer);
     });
 }
 
@@ -196,9 +200,7 @@ async function searchDiary(event) {
     const diaryContainer = document.getElementById('diaryContainer');
     diaryContainer.innerHTML = '';
     result.forEach(diary => {
-        const diaryElement = document.createElement('p');
-        diaryElement.textContent = diary.diary;
-        diaryContainer.appendChild(diaryElement);
+        renderDiary(diary, diaryContainer);
     });
 }
 
