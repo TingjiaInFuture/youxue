@@ -6,6 +6,8 @@ function renderDiary(diary, diaryContainer) {
     const content = document.createElement('p');
     const ratingInput = document.createElement('input');
     const ratingButton = document.createElement('button');
+    const deleteButton = document.createElement('button');  // 新增的删除按钮
+
     const firstLineEndIndex = diary.diary.indexOf('\n');
     title.textContent = diary.diary.slice(0, firstLineEndIndex);
     content.textContent = diary.diary.slice(firstLineEndIndex + 1);
@@ -15,25 +17,33 @@ function renderDiary(diary, diaryContainer) {
     ratingInput.name = 'rating';
     ratingInput.min = '1';
     ratingInput.max = '5';
-    ratingInput.style.display = 'none';  // 将评分输入框默认设置为隐藏
+    ratingInput.style.display = 'none';
     ratingButton.textContent = '提交评分';
-    ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
+    ratingButton.style.display = 'none';
     ratingButton.onclick = function() {
         rateDiary(diary.id, document.getElementById('rating').value);
+    };
+    deleteButton.className = 'delete-button';
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteButton.onclick = function() {
+        deleteDiary(diary.id);
     };
     title.addEventListener('click', function() {
         const displayStyle = content.style.display === 'none' ? 'block' : 'none';
         content.style.display = displayStyle;
-        ratingInput.style.display = displayStyle;  // 将评分输入框的显示状态与日记内容的显示状态绑定在一起
-        ratingButton.style.display = displayStyle;  // 将评分按钮的显示状态与日记内容的显示状态绑定在一起
+        ratingInput.style.display = displayStyle;
+        ratingButton.style.display = displayStyle;
         increaseViewCount(diary.id);
     });
+
     diaryElement.appendChild(title);
     diaryElement.appendChild(content);
     diaryElement.appendChild(ratingInput);
     diaryElement.appendChild(ratingButton);
+    diaryElement.appendChild(deleteButton);  
     diaryContainer.appendChild(diaryElement);
 }
+
 
 async function fetchREDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
