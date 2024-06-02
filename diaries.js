@@ -102,6 +102,16 @@ async function addDiary(event) {
     }
 }
 
+async function deleteDiary(diaryId) {
+    const response = await fetch(`${apiBaseUrl}/diaries/${diaryId}`, {
+        method: 'DELETE'
+    });
+    const data = await response.json();
+    if (!data.success) {
+        console.error('Failed to delete diary.');
+    }
+}
+
 async function login(event) {
     event.preventDefault();
     const username = document.getElementById('username').value;
