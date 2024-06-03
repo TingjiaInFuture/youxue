@@ -203,6 +203,7 @@
                         const edgeId = node < edge.node ? node + '-' + edge.node : edge.node + '-' + node;
                         if (!edgeSet.has(edgeId)) {
                             edges.push({
+                                id: edgeId,
                                 from: node,
                                 to: edge.node,
                                 label: String(edge.distance),
@@ -234,14 +235,27 @@
                 if (network.value && selectedNode.value) {
                     const nodeExists = network.value.body.data.nodes.get(selectedNode.value);
                     if (nodeExists) {
-                        network.value.selectNodes([selectedNode.value]);
-                        network.value.redraw();
+                        highlightSelectedNode(selectedNode.value);
                     } else {
                         console.error("Node does not exist: ", selectedNode.value);
                     }
                 } else {
                     console.error("Network graph is not initialized or selected node is undefined.");
                 }
+            }
+
+            function highlightSelectedNode(nodeId) {
+                resetNodeColors();
+                network.value.body.data.nodes.update({ id: nodeId, color: { border: '#f00', background: '#faa' } });
+                network.value.redraw();
+            }
+
+            function resetNodeColors() {
+                const nodes = network.value.body.data.nodes.get();
+                nodes.forEach(node => {
+                    network.value.body.data.nodes.update({ id: node.id, color: null });
+                });
+                network.value.redraw();
             }
 
             function search() {
