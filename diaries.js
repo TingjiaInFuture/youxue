@@ -1,63 +1,83 @@
 const apiBaseUrl = 'https://youxueserver-a-wcwgrndlcd.cn-hangzhou.fcapp.run';
 
 function renderDiary(diary, diaryContainer) {
-    const diaryElement = document.createElement('div');
-    const title = document.createElement('h2');
-    const content = document.createElement('p');
-    const ratingInput = document.createElement('input');
-    const ratingButton = document.createElement('button');
-    const deleteButton = document.createElement('button');  // 新增的删除按钮
+    const diaryCard = document.createElement('div');
+    diaryCard.className = 'card my-3';
 
+    const cardBody = document.createElement('div');
+    cardBody.className = 'card-body';
+
+    const title = document.createElement('h5');
+    title.className = 'card-title';
     const firstLineEndIndex = diary.diary.indexOf('\n');
     title.textContent = diary.diary.slice(0, firstLineEndIndex);
+
+    const content = document.createElement('p');
+    content.className = 'card-text';
     content.textContent = diary.diary.slice(firstLineEndIndex + 1);
     content.style.display = 'none';
+
+    const toggleContentButton = document.createElement('button');
+    toggleContentButton.className = 'btn btn-primary';
+    toggleContentButton.textContent = '查看详情';
+    toggleContentButton.onclick = function() {
+        const displayStyle = content.style.display === 'none' ? 'block' : 'none';
+        content.style.display = displayStyle;
+        toggleContentButton.textContent = displayStyle === 'none' ? '查看详情' : '收起';
+        ratingInput.style.display = displayStyle;
+        ratingButton.style.display = displayStyle;
+        if (displayStyle === 'block') {
+            increaseViewCount(diary.id);
+        }
+    };
+
+    const ratingInput = document.createElement('input');
     ratingInput.type = 'number';
+    ratingInput.className = 'form-control my-2';
     ratingInput.id = 'rating';
     ratingInput.name = 'rating';
     ratingInput.min = '1';
     ratingInput.max = '5';
+    ratingInput.placeholder = '评分 (1-5)';
     ratingInput.style.display = 'none';
+
+    const ratingButton = document.createElement('button');
+    ratingButton.className = 'btn btn-success';
     ratingButton.textContent = '提交评分';
     ratingButton.style.display = 'none';
     ratingButton.onclick = function() {
-        rateDiary(diary.id, document.getElementById('rating').value);
+        rateDiary(diary.id, ratingInput.value);
     };
-    deleteButton.className = 'delete-button';
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn btn-danger';
     deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
     deleteButton.onclick = function() {
         deleteDiary(diary.id);
     };
-    title.addEventListener('click', function() {
-        const displayStyle = content.style.display === 'none' ? 'block' : 'none';
-        content.style.display = displayStyle;
-        ratingInput.style.display = displayStyle;
-        ratingButton.style.display = displayStyle;
-        increaseViewCount(diary.id);
-    });
 
-    diaryElement.appendChild(title);
-    diaryElement.appendChild(content);
-    diaryElement.appendChild(ratingInput);
-    diaryElement.appendChild(ratingButton);
-    diaryElement.appendChild(deleteButton);  
-    diaryContainer.appendChild(diaryElement);
+    cardBody.appendChild(title);
+    cardBody.appendChild(content);
+    cardBody.appendChild(toggleContentButton);
+    cardBody.appendChild(ratingInput);
+    cardBody.appendChild(ratingButton);
+    cardBody.appendChild(deleteButton);
+
+    diaryCard.appendChild(cardBody);
+    diaryContainer.appendChild(diaryCard);
 }
-
 
 async function fetchREDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
     const data = await response.json();
     const diaryContainer = document.getElementById('diaryContainer');
-    // 清空日记容器
     diaryContainer.innerHTML = '';
     data.diaries.forEach(diary => {
         renderDiary(diary, diaryContainer);
     });
-    // 更新日记的总数
     const diaryCountElement = document.getElementById('diaryCount');
     diaryCountElement.textContent = `日记总数：${data.diaries.length}`;
-    return data.diaries.length;  // 返回日记的总数
+    return data.diaries.length;
 }
 
 async function increaseViewCount(diaryId) {
@@ -99,7 +119,8 @@ async function addDiary(event) {
     const data = await response.json();
     if (data.diaryId) {
         alert('Diary added successfully!');
-        diaryTextElement.value = '';  // 清空日记输入框
+        diaryTextElement.value = '';
+        fetchREDiaries();
     } else {
         alert('Failed to add diary.');
     }
@@ -110,7 +131,9 @@ async function deleteDiary(diaryId) {
         method: 'DELETE'
     });
     const data = await response.json();
-    if (!data.success) {
+    if (data.success) {
+        fetchREDiaries();
+    } else {
         console.error('Failed to delete diary.');
     }
 }
@@ -129,7 +152,6 @@ async function login(event) {
     const data = await response.json();
     if (data.userId) {
         document.getElementById('message').textContent = '登录成功！';
-        // 在这里保存用户ID
         localStorage.setItem('userId', data.userId);
     } else {
         document.getElementById('message').textContent = '登录失败：' + data.error;
@@ -150,7 +172,6 @@ async function register(event) {
     const data = await response.json();
     if (data.userId) {
         document.getElementById('message').textContent = '注册成功！';
-        // 在这里保存用户ID
         localStorage.setItem('userId', data.userId);
     } else {
         document.getElementById('message').textContent = '注册失败：' + data.error;
@@ -172,14 +193,12 @@ function toggleForms() {
     }
 }
 
-// KMP搜索算法
 function KMPSearch(pattern, text) {
-    if (pattern.length === 0) return 0; // Immediate match
+    if (pattern.length === 0) return 0;
 
-    // Compute longest suffix-prefix table
-    const lsp = [0]; // Base case
+    const lsp = [0];
     for (let i = 1; i < pattern.length; i++) {
-        let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+        let j = lsp[i - 1];
         while (j > 0 && pattern.charAt(i) !== pattern.charAt(j))
             j = lsp[j - 1];
         if (pattern.charAt(i) === pattern.charAt(j))
@@ -187,21 +206,19 @@ function KMPSearch(pattern, text) {
         lsp.push(j);
     }
 
-    // Walk through text string
-    let j = 0; // Number of chars matched in pattern
+    let j = 0;
     for (let i = 0; i < text.length; i++) {
         while (j > 0 && text.charAt(i) !== pattern.charAt(j))
-            j = lsp[j - 1]; // Fall back in the pattern
+            j = lsp[j - 1];
         if (text.charAt(i) === pattern.charAt(j)) {
-            j++; // Next char matched, increment position
+            j++;
             if (j === pattern.length)
                 return i - (j - 1);
         }
     }
-    return -1; // Not found
+    return -1;
 }
 
-// 搜索函数
 async function search(query) {
     const response = await fetch(`${apiBaseUrl}/diaries`);
     const data = await response.json();
@@ -215,71 +232,75 @@ async function search(query) {
     return result;
 }
 
-// 在JavaScript中添加处理搜索表单提交的函数
 async function searchDiary(event) {
     event.preventDefault();
     const searchText = document.getElementById('searchText').value;
-    const result = await search(searchText);
+    const searchResult = await search(searchText);
+
     const diaryContainer = document.getElementById('diaryContainer');
-    diaryContainer.innerHTML = '';
-    result.forEach(diary => {
+    diaryContainer.innerHTML = ''; // 清空日记容器
+
+    searchResult.forEach(diary => {
         renderDiary(diary, diaryContainer);
     });
+
+    // 更新日记的总数
+    const diaryCountElement = document.getElementById('diaryCount');
+    diaryCountElement.textContent = `搜索结果：${searchResult.length} 条日记`;
 }
 
 function toggleSearchForm() {
     const searchForm = document.getElementById('searchForm');
-    if (searchForm.style.maxHeight){
-        searchForm.style.maxHeight = null;
-    } else {
+    if (searchForm.style.display === 'none' || searchForm.style.display === '') {
         searchForm.style.display = 'block';
-        searchForm.style.maxHeight = searchForm.scrollHeight + "px";
-        setTimeout(function () {
-            searchForm.style.maxHeight = '0';
-        }, 10);
-    } 
+    } else {
+        searchForm.style.display = 'none';
+    }
 }
 
 function toggleWriteForm() {
     const writeForm = document.getElementById('writeForm');
-    if (writeForm.style.maxHeight){
-        writeForm.style.maxHeight = null;
-    } else {
+    if (writeForm.style.display === 'none' || writeForm.style.display === '') {
         writeForm.style.display = 'block';
-        writeForm.style.maxHeight = writeForm.scrollHeight + "px";
-        setTimeout(function () {
-            writeForm.style.maxHeight = '0';
-        }, 10);
-    } 
+    } else {
+        writeForm.style.display = 'none';
+    }
 }
 
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const writeForm = document.getElementById('writeForm');
+    const searchForm = document.getElementById('searchForm');
+    const toggleButton = document.querySelector('#用户 button');
+    const toggleSearchFormButton = document.getElementById('toggleSearchForm');
+    const toggleWriteFormButton = document.getElementById('toggleWriteForm');
 
+    if (loginForm) loginForm.addEventListener('submit', login);
+    if (registerForm) registerForm.addEventListener('submit', register);
+    if (writeForm) writeForm.addEventListener('submit', addDiary);
+    if (searchForm) searchForm.addEventListener('submit', searchDiary);
+    if (toggleButton) toggleButton.addEventListener('click', toggleForms);
+    if (toggleSearchFormButton) toggleSearchFormButton.addEventListener('click', toggleSearchForm);
+    if (toggleWriteFormButton) toggleWriteFormButton.addEventListener('click', toggleWriteForm);
 
-
-window.onload = function () {
-    // 获取所有的导航链接和内容部分
+    // 为导航链接添加点击事件监听器
     const navLinks = document.querySelectorAll('.nav-link');
     const contentSections = document.querySelectorAll('.content-section');
-
-    // 为每个导航链接添加点击事件监听器
     navLinks.forEach(link => {
-        link.addEventListener('click', function (event) {
-            // 阻止链接的默认行为
+        link.addEventListener('click', function(event) {
             event.preventDefault();
-
-            // 隐藏所有的内容部分
             contentSections.forEach(section => {
                 section.style.display = 'none';
             });
-
-            // 显示被点击的链接对应的内容部分
             const targetSection = document.querySelector(this.getAttribute('href'));
             targetSection.style.display = 'block';
-
-            // 如果是“游学日记管理”链接，那么获取日记
             if (this.getAttribute('href') === '#日记') {
                 fetchREDiaries();
             }
         });
     });
-};
+
+    fetchREDiaries();
+});

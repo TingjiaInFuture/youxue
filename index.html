@@ -1,81 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>游学系统</title>
-    <link rel="stylesheet" href="main.css">
-    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
-    <header>
+    <header class="bg-primary text-white text-center py-4">
         <h1>欢迎来到游学系统</h1>
     </header>
-    <nav>
-        <ul>
-            <li><a href="#用户" class="nav-link">用户</a></li>
-            <li><a href="#推荐" class="nav-link">游学推荐</a></li>
-            <li><a href="#规划" class="nav-link">游学路线规划</a></li>
-            <li><a href="#查询" class="nav-link">场所查询</a></li>
-            <li><a href="#日记" class="nav-link">游学日记管理</a></li>
-        </ul>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">游学系统</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="#用户">用户</a></li>
+                <li class="nav-item"><a class="nav-link" href="#推荐">游学推荐</a></li>
+                <li class="nav-item"><a class="nav-link" href="#规划">游学路线规划</a></li>
+                <li class="nav-item"><a class="nav-link" href="#查询">场所查询</a></li>
+                <li class="nav-item"><a class="nav-link" href="#日记">游学日记管理</a></li>
+            </ul>
+        </div>
     </nav>
-    <main>
+    <main class="container my-4">
         <section id="用户" class="content-section">
-            <button onclick="toggleForms()">切换到注册</button>
-            <form id="loginForm" onsubmit="login(event)">
-                <label for="username">用户名：</label><br>
-                <input type="text" id="username" name="username"><br>
-                <label for="password">密码：</label><br>
-                <input type="password" id="password" name="password"><br>
-                <input type="submit" value="登录">
+            <button class="btn btn-secondary" onclick="toggleForms()">切换到注册</button>
+            <form id="loginForm" onsubmit="login(event)" class="my-3">
+                <div class="form-group">
+                    <label for="username">用户名：</label>
+                    <input type="text" class="form-control" id="username" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码：</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <button type="submit" class="btn btn-primary">登录</button>
             </form>
-            <form id="registerForm" onsubmit="register(event)" style="display: none;">
-                <label for="newUsername">用户名：</label><br>
-                <input type="text" id="newUsername" name="newUsername"><br>
-                <label for="newPassword">密码：</label><br>
-                <input type="password" id="newPassword" name="newPassword"><br>
-                <input type="submit" value="注册">
+            <form id="registerForm" onsubmit="register(event)" class="my-3" style="display: none;">
+                <div class="form-group">
+                    <label for="newUsername">用户名：</label>
+                    <input type="text" class="form-control" id="newUsername" name="newUsername">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">密码：</label>
+                    <input type="password" class="form-control" id="newPassword" name="newPassword">
+                </div>
+                <button type="submit" class="btn btn-primary">注册</button>
             </form>
             <p id="message"></p>
         </section>
-        <section id="推荐" class="content-section">
-            <!-- <div id="recommendedDiaryContainer"></div> -->
-        </section>
-        <section id="规划" class="content-section">
-            <!-- 在这里添加游学路线规划的内容 -->
-        </section>
-        <section id="查询" class="content-section">
-            <!-- 在这里添加场所查询的内容 -->
-        </section>
-        <!-- 在HTML中添加搜索表单 -->
+        <section id="推荐" class="content-section"></section>
+        <section id="规划" class="content-section"></section>
+        <section id="查询" class="content-section"></section>
         <section id="日记" class="content-section">
-            <div style="display: flex; flex-direction: column;">
-                <div>
-                    <button id="searchButton" onclick="toggleSearchForm()"><i class="fas fa-search"></i></button>
-                    <!-- 在这里添加一个新的元素来显示日记的总数 -->
-                    <span id="diaryCount"></span>
-                    <form id="searchForm" onsubmit="searchDiary(event)" style="display: none;">
-                        <label for="searchText">搜索日记：</label><br>
-                        <input type="text" id="searchText" name="searchText"><br>
-                        <input type="submit" value="搜索">
+            <div class="d-flex flex-column">
+                <div class="mb-2">
+                    <button id="searchButton" class="btn btn-info" onclick="toggleSearchForm()"><i class="fas fa-search"></i> 搜索日记</button>
+                    <span id="diaryCount" class="ml-2"></span>
+                    <form id="searchForm" onsubmit="searchDiary(event)" class="my-2" style="display: none;">
+                        <div class="form-group">
+                            <label for="searchText">搜索日记：</label>
+                            <input type="text" class="form-control" id="searchText" name="searchText">
+                        </div>
+                        <button type="submit" class="btn btn-primary">搜索</button>
                     </form>
                 </div>
                 <div>
-                    <button id="writeButton" onclick="toggleWriteForm()"><i class="fas fa-pen"></i></button>
-                    <form id="writeForm" onsubmit="addDiary(event)" style="display: none;">
-                        <label for="diaryText">游学日记内容：</label><br>
-                        <textarea id="diaryText" name="diaryText" rows="4" cols="50"></textarea><br>
-                        <input type="submit" value="提交">
+                    <button id="writeButton" class="btn btn-info" onclick="toggleWriteForm()"><i class="fas fa-pen"></i> 写日记</button>
+                    <form id="writeForm" onsubmit="addDiary(event)" class="my-2" style="display: none;">
+                        <div class="form-group">
+                            <label for="diaryText">游学日记内容：</label>
+                            <textarea class="form-control" id="diaryText" name="diaryText" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交</button>
                     </form>
                 </div>
             </div>
-            <div id="diaryContainer"></div>
+            <div id="diaryContainer" class="mt-4"></div>
         </section>
-        
-        
     </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="diaries.js"></script>
 </body>
 
