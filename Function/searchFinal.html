@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游学路线规划</title>
+    <title>查询周边</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
@@ -22,7 +22,7 @@
             margin: 20px auto;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .selector-wrapper {
+        #results, .selector-wrapper {
             width: 80%;
             margin: 20px auto;
             background: white;
@@ -37,6 +37,30 @@
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
+            cursor: pointer;
+            background-color: #fafafa;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0, 84, 179, 0.2);
+        }
+        select[multiple] {
+            height: auto;
+            overflow-y: auto;
+            background-color: #ffffff;
+        }
+        option {
+            padding: 8px 12px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+        }
+        option:hover {
+            background-color: #eef4ff;
+        }
+        option:checked, option:selected {
+            background-color: #dae8ff;
+            color: #333;
         }
         button {
             width: 100%;
@@ -66,112 +90,64 @@
             text-align: center;
             color: #333;
         }
-        .result-item, .statistics {
+        h2 {
+            margin-top: 20px;
+            color: #0056b3;
+        }
+        .result-item {
             padding: 5px 0;
             border-bottom: 1px solid #eee;
         }
-        .result-item:last-child, .statistics:last-child {
+        .result-item:last-child {
             border-bottom: none;
         }
         .no-results {
             text-align: center;
             color: #999;
         }
-        .start-node {
-            border: 3px solid #f00 !important;
-        }
-        .end-node {
-            border: 3px solid #00f !important;
-        }
-        .path-edge {
-            color: black !important;
-            width: 3px !important;
-        }
-        .waypoint-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .waypoint-item button {
-            background-color: #d10000;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            margin-left: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .waypoint-item button:hover {
-            background-color: #a80000;
-        }
     </style>
 </head>
 <body>
     <div id="app">
-        <h1>游学路线规划</h1>
+        <h1>查询周边</h1>
         <div class="selector-wrapper">
+            <input type="text" v-model="graphFilter" placeholder="请输入学校或景点名称...">
             <select v-model="selectedGraph" @change="loadGraph">
-                <option v-for="graph in graphNames" :value="graph">{{ graph }}</option>
+                <option v-for="graph in filteredGraphs" :value="graph">{{ graph }}</option>
             </select>
         </div>
         <div class="selector-wrapper">
-            <input type="text" v-model="startNodeSearch" placeholder="请输入出发地点...">
-            <select v-model="selectedStartNode" @change="highlightStartNode">
-                <option v-for="node in filteredStartNodes" :value="node">{{ node }}</option>
-            </select>
-            <input type="text" v-model="endNodeSearch" placeholder="请输入目的地点...">
-            <select v-model="selectedEndNode" @change="highlightEndNode">
-                <option v-for="node in filteredEndNodes" :value="node">{{ node }}</option>
+            <input type="text" v-model="nodeSearch" placeholder="请输入设施类别...">
+            <select v-model="selectedNode" @change="selectNodeFromDropdown">
+                <option v-for="node in filteredNodes" :value="node">{{ node }}</option>
             </select>
         </div>
-        <div class="selector-wrapper">
-            <button @click="toggleWaypointMode">{{ waypointMode ? '退出途径地点选择模式' : '点击选择途径地点' }}</button>
-            <p v-if="waypointMode" class="highlighted">进入途径地点选择模式</p>
-            <p v-else class="highlighted">未进入途径地点选择模式</p>
-        </div>
-        <div class="selector-wrapper">
-            <p>已选中的途径地点:</p>
-            <ul>
-                <li v-for="(waypoint, index) in selectedWaypoints" :key="waypoint" class="waypoint-item">
-                    {{ waypoint }}
-                    <button @click="removeWaypoint(index)">取消选中</button>
-                </li>
-            </ul>
-        </div>
+        <p class="highlighted">已选中：{{ selectedNode || '请选中地点以查询周边' }}</p>
         <div id="network"></div>
+        <input type="number" v-model.number="maxDistance" placeholder="请输入中心辐射距离">
+        <button @click="search">搜索</button>
+        <p class="highlighted">您可以按地点类型对结果进行筛选：</p>
         <div class="selector-wrapper">
-            <select v-model="selectedStrategy">
-                <option value="distance">最短距离策略</option>
-                <option value="time">最短时间策略</option>
-            </select>
-            <select v-model="selectedTransport" v-if="selectedStrategy === 'time'">
-                <option value="walk">步行</option>
-                <option value="bike">使用交通工具</option>
+            <select multiple v-model="selectedTypes">
+                <option value="">不筛选</option>
+                <option v-for="type in allNodeTypes" :value="type">{{ type }}</option>
             </select>
         </div>
-        <button @click="planRoute">规划路线</button>
         <div id="results">
-            <h2>规划路线结果</h2>
-            <div v-if="route.length > 0">
-                <div v-for="(node, index) in route" :key="node" class="result-item">
-                    {{ index + 1 }}. 地点名称：{{ node }}
+            <h2>周边地点结果</h2>
+            <div v-if="filteredResults.length">
+                <div v-for="(result, index) in filteredResults" :key="result.name" class="result-item">
+                    {{ index + 1 }}. 设施类型：{{ result.type }}，地点名称：{{ result.name }}——距离：{{ result.distance }}米
                 </div>
             </div>
             <div v-else class="no-results">
                 在当前条件下没有结果
             </div>
         </div>
-        <div id="statistics" class="selector-wrapper">
-            <h2>统计信息</h2>
-            <p>从出发点到目的地的总计距离：{{ totalDistance }} 米</p>
-            <p v-if="selectedStrategy === 'time'">从出发点到目的地的总计时间：{{ (totalTime / 60).toFixed(2) }} 分钟</p>
-            <p v-if="selectedStrategy === 'time' && selectedTransport === 'bike'">使用交通工具的时间：{{ (totalRideTime / 60).toFixed(2) }} 分钟</p>
-            <p v-if="selectedStrategy === 'time' && selectedTransport === 'bike'">总步行时间：{{ (totalWalkTime / 60).toFixed(2) }} 分钟</p>
-        </div>
     </div>
 
     <script type="module">
-    import { createApp, ref, computed, watch } from 'https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js';
+    import { createApp, ref, computed } from 'https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js';
     import graph1 from './graph1.js';
     import graph2 from './graph2.js';
     import graph3 from './graph3.js';
@@ -182,42 +158,44 @@
 
     createApp({
         setup() {
-            const graphNames = ref(['graph1', 'graph2', 'graph3', 'graph4', 'graph5']);
-            const selectedGraph = ref(graphNames.value[0]);
-            const startNodeSearch = ref('');
-            const endNodeSearch = ref('');
-            const selectedStartNode = ref('');
-            const selectedEndNode = ref('');
-            const selectedStrategy = ref('distance');
-            const selectedTransport = ref('walk');
+            const graphNames = ['graph1', 'graph2', 'graph3', 'graph4', 'graph5'];
+            const selectedGraph = ref('graph1');
+            const graphFilter = ref('');
+            const nodeSearch = ref('');
+            const selectedNode = ref('');
             const network = ref(null);
-            const route = ref([]);
-            const totalDistance = ref(0);
-            const totalTime = ref(0);
-            const totalRideTime = ref(0);
-            const totalWalkTime = ref(0);
-            const waypointMode = ref(false);
-            const selectedWaypoints = ref([]);
-            let previousHighlightedEdges = [];
-            let previousEndNode = null;
+            const maxDistance = ref(100);
+            const results = ref([]);
+            const selectedTypes = ref([]);
 
-            watch(selectedStartNode, () => highlightStartNode());
-            watch(selectedEndNode, () => highlightEndNode());
-
-            const filteredStartNodes = computed(() => {
-                const nodes = graphs[selectedGraph.value];
-                return startNodeSearch.value ? Object.keys(nodes).filter(node => node.toLowerCase().includes(startNodeSearch.value.toLowerCase())) : Object.keys(nodes);
+            const filteredGraphs = computed(() => {
+                return graphNames.filter(g => g.toLowerCase().includes(graphFilter.value.toLowerCase()));
             });
 
-            const filteredEndNodes = computed(() => {
+            const filteredNodes = computed(() => {
                 const nodes = graphs[selectedGraph.value];
-                return endNodeSearch.value ? Object.keys(nodes).filter(node => node.toLowerCase().includes(endNodeSearch.value.toLowerCase())) : Object.keys(nodes);
+                return nodeSearch.value ? Object.keys(nodes).filter(node => node.toLowerCase().includes(nodeSearch.value.toLowerCase())) : Object.keys(nodes);
+            });
+
+            const allNodeTypes = computed(() => {
+                const types = new Set();
+                Object.values(graphs[selectedGraph.value]).forEach(node => {
+                    types.add(node.node_type); // 假设节点的类型信息存储在 node_type 属性中
+                });
+                return [...types];
+            });
+
+            const filteredResults = computed(() => {
+                if (!selectedTypes.value.length || selectedTypes.value.includes("")) {
+                    return results.value;
+                }
+                return results.value.filter(result => selectedTypes.value.includes(result.type));
             });
 
             function loadGraph() {
                 const nodes = [];
                 const edges = [];
-                const edgeSet = new Set();  // 防止重复添加边
+                const edgeSet = new Set();  // To prevent adding edges twice
                 const graph = graphs[selectedGraph.value];
                 for (let node in graph) {
                     nodes.push({ id: node, label: node, group: graph[node].node_category });
@@ -242,266 +220,100 @@
                     network.value.destroy();
                 }
                 network.value = new vis.Network(container, data, options);
-                network.value.on("click", function (params) {
-                    if (waypointMode.value) {
-                        if (params.nodes.length > 0) {
-                            const clickedNode = params.nodes[0];
-                            if (selectedWaypoints.value.includes(clickedNode)) {
-                                selectedWaypoints.value = selectedWaypoints.value.filter(node => node !== clickedNode);
-                            } else {
-                                selectedWaypoints.value.push(clickedNode);
-                            }
-                        }
+                network.value.on("selectNode", function (params) {
+                    if (params.nodes.length > 0) {
+                        selectedNode.value = params.nodes[0];
+                    }
+                });
+            }
+
+            function filterNodes() {
+                selectedNode.value = '';
+            }
+
+            function selectNodeFromDropdown() {
+                if (network.value && selectedNode.value) {
+                    const nodeExists = network.value.body.data.nodes.get(selectedNode.value);
+                    if (nodeExists) {
+                        highlightSelectedNode(selectedNode.value);
                     } else {
-                        if (params.nodes.length > 0) {
-                            const clickedNode = params.nodes[0];
-                            selectedStartNode.value = clickedNode;
-                        }
+                        console.error("Node does not exist: ", selectedNode.value);
                     }
-                });
-                network.value.on("oncontext", function (params) {
-                    params.event.preventDefault();
-                    if (!waypointMode.value) {
-                        const pointer = params.pointer;
-                        const clickedNode = network.value.getNodeAt(pointer.DOM);
-                        if (clickedNode) {
-                            if (previousEndNode) {
-                                network.value.body.data.nodes.update({ id: previousEndNode, color: { border: '#2B7CE9' } });
-                            }
-                            selectedEndNode.value = clickedNode;
-                            previousEndNode = clickedNode;
-                        }
-                    }
-                });
-            }
-
-            function toggleWaypointMode() {
-                waypointMode.value = !waypointMode.value;
-            }
-
-            function highlightStartNode() {
-                if (network.value && selectedStartNode.value) {
-                    network.value.body.data.nodes.update({ id: selectedStartNode.value, color: { border: 'black' } });
-                    network.value.redraw();
+                } else {
+                    console.error("Network graph is not initialized or selected node is undefined.");
                 }
             }
 
-            function highlightEndNode() {
-                if (network.value && selectedEndNode.value) {
-                    network.value.body.data.nodes.update({ id: selectedEndNode.value, color: { border: 'black' } });
-                    network.value.redraw();
-                }
+            function highlightSelectedNode(nodeId) {
+                resetNodeColors();
+                network.value.body.data.nodes.update({ id: nodeId, color: { border: '#f00', background: '#faa' } });
+                network.value.redraw();
             }
 
-            function planRoute() {
+            function resetNodeColors() {
+                const nodes = network.value.body.data.nodes.get();
+                nodes.forEach(node => {
+                    network.value.body.data.nodes.update({ id: node.id, color: null });
+                });
+                network.value.redraw();
+            }
+
+            function dijkstra(graph, startNode) {
+                const distances = {};
+                const previous = {};
+                const queue = new Set(Object.keys(graph));
+
+                queue.forEach(node => {
+                    distances[node] = Infinity;
+                    previous[node] = null;
+                });
+
+                distances[startNode] = 0;
+
+                while (queue.size) {
+                    const currentNode = [...queue].reduce((minNode, node) => (
+                        distances[node] < distances[minNode] ? node : minNode
+                    ));
+
+                    queue.delete(currentNode);
+
+                    graph[currentNode].edges.forEach(edge => {
+                        const altDistance = distances[currentNode] + edge.distance;
+                        if (altDistance < distances[edge.node]) {
+                            distances[edge.node] = altDistance;
+                            previous[edge.node] = currentNode;
+                        }
+                    });
+                }
+
+                return { distances, previous };
+            }
+
+            function search() {
+                results.value = [];
                 const graph = graphs[selectedGraph.value];
-                const start = selectedStartNode.value;
-                const end = selectedEndNode.value;
-                const waypoints = selectedWaypoints.value;
+                const targetNode = graph[selectedNode.value];
 
-                if (!start || !end) return;
+                if (targetNode) {
+                    const { distances } = dijkstra(graph, selectedNode.value);
+                    let nodeDistances = [];
 
-                let fullPath = [];
-                totalDistance.value = 0;
-                totalTime.value = 0;
-                totalRideTime.value = 0;
-                totalWalkTime.value = 0;
-
-                function calculatePath(from, to) {
-                    const nodes = new Set(Object.keys(graph));
-                    const distances = {};
-                    const times = {};
-                    const previous = {};
-
-                    nodes.forEach(node => {
-                        distances[node] = Infinity;
-                        times[node] = Infinity;
-                        previous[node] = null;
-                    });
-
-                    distances[from] = 0;
-                    times[from] = 0;
-
-                    while (nodes.size) {
-                        const closestNode = [...nodes].reduce((minNode, node) =>
-                            selectedStrategy.value === 'distance' ?
-                            (distances[node] < distances[minNode] ? node : minNode) :
-                            (times[node] < times[minNode] ? node : minNode)
-                        , [...nodes][0]);
-
-                        if (closestNode === to) break;
-
-                        nodes.delete(closestNode);
-
-                        graph[closestNode].edges.forEach(edge => {
-                            const altDist = distances[closestNode] + edge.distance;
-                            let altTime;
-                            if (selectedTransport.value === 'walk') {
-                                altTime = times[closestNode] + edge.time.walk_time;
-                            } else {
-                                altTime = times[closestNode] + (edge.time.ride_time === -1 ? edge.time.walk_time : Math.min(edge.time.walk_time, edge.time.ride_time));
-                            }
-
-                            if (selectedStrategy.value === 'distance' && altDist < distances[edge.node]) {
-                                distances[edge.node] = altDist;
-                                previous[edge.node] = closestNode;
-                            } else if (selectedStrategy.value === 'time' && altTime < times[edge.node]) {
-                                times[edge.node] = altTime;
-                                previous[edge.node] = closestNode;
-                            }
-                        });
-                    }
-
-                    const path = [];
-                    let currentNode = to;
-
-                    while (currentNode) {
-                        path.unshift(currentNode);
-                        currentNode = previous[currentNode];
-                    }
-
-                    return { path, distances, times };
-                }
-
-                function findBestPath(start, end, waypoints) {
-                    if (waypoints.length === 0) {
-                        return calculatePath(start, end).path;
-                    }
-                    
-                    const permutations = permute(waypoints);
-                    let bestPath = [];
-                    let bestDistance = Infinity;
-                    let bestTime = Infinity;
-
-                    permutations.forEach(perm => {
-                        let currentPath = [];
-                        let currentDistance = 0;
-                        let currentTime = 0;
-                        let valid = true;
-
-                        let prevNode = start;
-                        for (let waypoint of perm) {
-                            const { path: segment, distances, times } = calculatePath(prevNode, waypoint);
-                            if (segment.length === 0) {
-                                valid = false;
-                                break;
-                            }
-                            currentPath = currentPath.concat(segment.slice(0, -1));
-                            currentDistance += distances[waypoint];
-                            currentTime += times[waypoint];
-                            prevNode = waypoint;
+                    for (let node in distances) {
+                        if (node !== selectedNode.value && distances[node] <= maxDistance.value) {
+                            nodeDistances.push({
+                                name: node,
+                                distance: distances[node],
+                                type: graph[node].node_type
+                            });
                         }
-
-                        const { path: finalSegment, distances: finalDistances, times: finalTimes } = calculatePath(prevNode, end);
-                        if (finalSegment.length === 0) {
-                            valid = false;
-                        }
-
-                        if (valid) {
-                            currentPath = currentPath.concat(finalSegment);
-                            currentDistance += finalDistances[end];
-                            currentTime += finalTimes[end];
-
-                            if (selectedStrategy.value === 'distance' && currentDistance < bestDistance) {
-                                bestDistance = currentDistance;
-                                bestPath = currentPath;
-                            } else if (selectedStrategy.value === 'time' && currentTime < bestTime) {
-                                bestTime = currentTime;
-                                bestPath = currentPath;
-                            }
-                        }
-                    });
-
-                    totalDistance.value = bestDistance;
-                    totalTime.value = bestTime;
-                    return bestPath;
-                }
-
-                const permute = (arr) => {
-                    if (arr.length <= 1) return [arr];
-                    const result = [];
-                    for (let i = 0; i < arr.length; i++) {
-                        const rest = permute(arr.slice(0, i).concat(arr.slice(i + 1)));
-                        rest.forEach(r => result.push([arr[i]].concat(r)));
                     }
-                    return result;
-                };
 
-                const bestPath = findBestPath(start, end, waypoints);
-                route.value = bestPath;
-
-                // Recalculate times based on the final path
-                totalDistance.value = 0;
-                totalTime.value = 0;
-                totalRideTime.value = 0;
-                totalWalkTime.value = 0;
-                for (let i = 0; i < bestPath.length - 1; i++) {
-                    const from = bestPath[i];
-                    const to = bestPath[i + 1];
-                    const edge = graph[from].edges.find(e => e.node === to);
-
-                    totalDistance.value += edge.distance;
-                    if (selectedTransport.value === 'walk' || edge.time.ride_time === -1) {
-                        totalWalkTime.value += edge.time.walk_time;
-                    } else {
-                        totalRideTime.value += edge.time.ride_time;
-                    }
-                }
-                totalTime.value = totalWalkTime.value + totalRideTime.value;
-
-                resetEdgeColors();
-                highlightPath(route.value);
-            }
-
-            function resetEdgeColors() {
-                if (network.value && previousHighlightedEdges.length > 0) {
-                    const edges = network.value.body.data.edges.get();
-                    previousHighlightedEdges.forEach(edgeId => {
-                        const edge = edges.find(e => e.id === edgeId);
-                        if (edge) {
-                            edge.color = edge.bike_flag ? 'blue' : 'red';
-                            edge.width = 1;
-                        }
-                    });
-                    network.value.body.data.edges.update(edges);
-                    previousHighlightedEdges = [];
+                    nodeDistances.sort((a, b) => a.distance - b.distance);
+                    results.value = nodeDistances.length > 0 ? nodeDistances : [{ name: "No nodes within the specified range.", distance: "-", type: "N/A" }];
                 }
             }
 
-            function highlightPath(path) {
-                if (network.value) {
-                    const edges = network.value.body.data.edges.get();
-                    const updateEdges = edges.map(edge => {
-                        if (path.includes(edge.from) && path.includes(edge.to)) {
-                            previousHighlightedEdges.push(edge.id);
-                            return { ...edge, color: { color: 'black' }, width: 3 };
-                        } else {
-                            return edge;
-                        }
-                    });
-                    network.value.body.data.edges.update(updateEdges);
-
-                    path.forEach((node, index) => {
-                        if (index === 0 || index === path.length - 1) {
-                            network.value.body.data.nodes.update({ id: node, color: { border: 'black' } });
-                        } else {
-                            network.value.body.data.nodes.update({ id: node, color: { border: 'green' } });
-                        }
-                    });
-                }
-            }
-
-            function removeWaypoint(index) {
-                selectedWaypoints.value.splice(index, 1);
-            }
-
-            return {
-                graphNames, selectedGraph, network, startNodeSearch, endNodeSearch,
-                selectedStartNode, selectedEndNode, selectedStrategy, selectedTransport,
-                filteredStartNodes, filteredEndNodes, loadGraph, highlightStartNode, 
-                highlightEndNode, planRoute, route, totalDistance, totalTime, totalRideTime, totalWalkTime,
-                waypointMode, toggleWaypointMode, selectedWaypoints, removeWaypoint
-            };
+            return { selectedGraph, graphFilter, filteredGraphs, network, maxDistance, results, search, filteredNodes, nodeSearch, selectedNode, allNodeTypes, filteredResults, loadGraph, filterNodes, selectNodeFromDropdown, selectedTypes };
         }
     }).mount('#app');
     </script>
