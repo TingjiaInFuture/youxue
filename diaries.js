@@ -54,8 +54,11 @@ async function fetchREDiaries() {
     data.diaries.forEach(diary => {
         renderDiary(diary, diaryContainer);
     });
+    // 更新日记的总数
+    const diaryCountElement = document.getElementById('diaryCount');
+    diaryCountElement.textContent = `日记总数：${data.diaries.length}`;
+    return data.diaries.length;  // 返回日记的总数
 }
-
 
 async function increaseViewCount(diaryId) {
     const response = await fetch(`${apiBaseUrl}/diaries/${diaryId}/view`, {
@@ -223,6 +226,33 @@ async function searchDiary(event) {
         renderDiary(diary, diaryContainer);
     });
 }
+
+function toggleSearchForm() {
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm.style.maxHeight){
+        searchForm.style.maxHeight = null;
+    } else {
+        searchForm.style.display = 'block';
+        searchForm.style.maxHeight = searchForm.scrollHeight + "px";
+        setTimeout(function () {
+            searchForm.style.maxHeight = '0';
+        }, 10);
+    } 
+}
+
+function toggleWriteForm() {
+    const writeForm = document.getElementById('writeForm');
+    if (writeForm.style.maxHeight){
+        writeForm.style.maxHeight = null;
+    } else {
+        writeForm.style.display = 'block';
+        writeForm.style.maxHeight = writeForm.scrollHeight + "px";
+        setTimeout(function () {
+            writeForm.style.maxHeight = '0';
+        }, 10);
+    } 
+}
+
 
 
 

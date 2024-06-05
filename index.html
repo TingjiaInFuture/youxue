@@ -51,18 +51,30 @@
         </section>
         <!-- 在HTML中添加搜索表单 -->
         <section id="日记" class="content-section">
-            <form onsubmit="searchDiary(event)">
-                <label for="searchText">搜索日记：</label><br>
-                <input type="text" id="searchText" name="searchText"><br>
-                <input type="submit" value="搜索">
-            </form>
-            <form onsubmit="addDiary(event)">
-                <label for="diaryText">游学日记内容：</label><br>
-                <textarea id="diaryText" name="diaryText" rows="4" cols="50"></textarea><br>
-                <input type="submit" value="提交">
-            </form>
+            <div style="display: flex; flex-direction: column;">
+                <div>
+                    <button id="searchButton" onclick="toggleSearchForm()"><i class="fas fa-search"></i></button>
+                    <!-- 在这里添加一个新的元素来显示日记的总数 -->
+                    <span id="diaryCount"></span>
+                    <form id="searchForm" onsubmit="searchDiary(event)" style="display: none;">
+                        <label for="searchText">搜索日记：</label><br>
+                        <input type="text" id="searchText" name="searchText"><br>
+                        <input type="submit" value="搜索">
+                    </form>
+                </div>
+                <div>
+                    <button id="writeButton" onclick="toggleWriteForm()"><i class="fas fa-pen"></i></button>
+                    <form id="writeForm" onsubmit="addDiary(event)" style="display: none;">
+                        <label for="diaryText">游学日记内容：</label><br>
+                        <textarea id="diaryText" name="diaryText" rows="4" cols="50"></textarea><br>
+                        <input type="submit" value="提交">
+                    </form>
+                </div>
+            </div>
             <div id="diaryContainer"></div>
         </section>
+        
+        
     </main>
     <script src="diaries.js"></script>
 </body>

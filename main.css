@@ -102,3 +102,15 @@ input[type="submit"] {
     cursor: pointer;
     color: red;
 }
+
+#searchButton, #writeButton {
+    align-self: flex-start;
+    width: auto;
+    padding: 10px 20px;
+    margin: 10px;
+}
+
+#searchForm, #writeForm {
+    transition: max-height 0.2s ease-out;
+    overflow: hidden;
+}
