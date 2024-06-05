@@ -87,6 +87,23 @@
             color: black !important;
             width: 3px !important;
         }
+        .waypoint-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .waypoint-item button {
+            background-color: #d10000;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .waypoint-item button:hover {
+            background-color: #a80000;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +123,20 @@
             <select v-model="selectedEndNode" @change="highlightEndNode">
                 <option v-for="node in filteredEndNodes" :value="node">{{ node }}</option>
             </select>
+        </div>
+        <div class="selector-wrapper">
+            <button @click="toggleWaypointMode">{{ waypointMode ? '退出途径地点选择模式' : '点击选择途径地点' }}</button>
+            <p v-if="waypointMode" class="highlighted">进入途径地点选择模式</p>
+            <p v-else class="highlighted">未进入途径地点选择模式</p>
+        </div>
+        <div class="selector-wrapper">
+            <p>已选中的途径地点:</p>
+            <ul>
+                <li v-for="(waypoint, index) in selectedWaypoints" :key="waypoint" class="waypoint-item">
+                    {{ waypoint }}
+                    <button @click="removeWaypoint(index)">取消选中</button>
+                </li>
+            </ul>
         </div>
         <div id="network"></div>
         <div class="selector-wrapper">
@@ -134,8 +165,8 @@
             <h2>统计信息</h2>
             <p>从出发点到目的地的总计距离：{{ totalDistance }} 米</p>
             <p v-if="selectedStrategy === 'time'">从出发点到目的地的总计时间：{{ (totalTime / 60).toFixed(2) }} 分钟</p>
+            <p v-if="selectedStrategy === 'time' && selectedTransport === 'bike'">使用交通工具的时间：{{ (totalRideTime / 60).toFixed(2) }} 分钟</p>
             <p v-if="selectedStrategy === 'time' && selectedTransport === 'bike'">总步行时间：{{ (totalWalkTime / 60).toFixed(2) }} 分钟</p>
-            <p v-if="selectedStrategy === 'time' && selectedTransport === 'bike'">总骑行时间：{{ (totalRideTime / 60).toFixed(2) }} 分钟</p>
         </div>
     </div>
 
@@ -163,8 +194,10 @@
             const route = ref([]);
             const totalDistance = ref(0);
             const totalTime = ref(0);
-            const totalWalkTime = ref(0);
             const totalRideTime = ref(0);
+            const totalWalkTime = ref(0);
+            const waypointMode = ref(false);
+            const selectedWaypoints = ref([]);
             let previousHighlightedEdges = [];
             let previousEndNode = null;
 
@@ -210,23 +243,40 @@
                 }
                 network.value = new vis.Network(container, data, options);
                 network.value.on("click", function (params) {
-                    if (params.nodes.length > 0) {
-                        const clickedNode = params.nodes[0];
-                        selectedStartNode.value = clickedNode;
+                    if (waypointMode.value) {
+                        if (params.nodes.length > 0) {
+                            const clickedNode = params.nodes[0];
+                            if (selectedWaypoints.value.includes(clickedNode)) {
+                                selectedWaypoints.value = selectedWaypoints.value.filter(node => node !== clickedNode);
+                            } else {
+                                selectedWaypoints.value.push(clickedNode);
+                            }
+                        }
+                    } else {
+                        if (params.nodes.length > 0) {
+                            const clickedNode = params.nodes[0];
+                            selectedStartNode.value = clickedNode;
+                        }
                     }
                 });
                 network.value.on("oncontext", function (params) {
                     params.event.preventDefault();
-                    const pointer = params.pointer;
-                    const clickedNode = network.value.getNodeAt(pointer.DOM);
-                    if (clickedNode) {
-                        if (previousEndNode) {
-                            network.value.body.data.nodes.update({ id: previousEndNode, color: { border: '#2B7CE9' } });
+                    if (!waypointMode.value) {
+                        const pointer = params.pointer;
+                        const clickedNode = network.value.getNodeAt(pointer.DOM);
+                        if (clickedNode) {
+                            if (previousEndNode) {
+                                network.value.body.data.nodes.update({ id: previousEndNode, color: { border: '#2B7CE9' } });
+                            }
+                            selectedEndNode.value = clickedNode;
+                            previousEndNode = clickedNode;
                         }
-                        selectedEndNode.value = clickedNode;
-                        previousEndNode = clickedNode;
                     }
                 });
+            }
+
+            function toggleWaypointMode() {
+                waypointMode.value = !waypointMode.value;
             }
 
             function highlightStartNode() {
@@ -247,84 +297,160 @@
                 const graph = graphs[selectedGraph.value];
                 const start = selectedStartNode.value;
                 const end = selectedEndNode.value;
+                const waypoints = selectedWaypoints.value;
 
                 if (!start || !end) return;
 
-                const nodes = new Set(Object.keys(graph));
-                const distances = {};
-                const times = {};
-                const previous = {};
-
-                nodes.forEach(node => {
-                    distances[node] = Infinity;
-                    times[node] = Infinity;
-                    previous[node] = null;
-                });
-
-                distances[start] = 0;
-                times[start] = 0;
-
-                while (nodes.size) {
-                    const closestNode = [...nodes].reduce((minNode, node) =>
-                        selectedStrategy.value === 'distance' ?
-                        (distances[node] < distances[minNode] ? node : minNode) :
-                        (times[node] < times[minNode] ? node : minNode)
-                    , [...nodes][0]);
-
-                    if (closestNode === end) break;
-
-                    nodes.delete(closestNode);
-
-                    graph[closestNode].edges.forEach(edge => {
-                        const altDist = distances[closestNode] + edge.distance;
-                        let altTime;
-                        if (selectedTransport.value === 'walk') {
-                            altTime = times[closestNode] + edge.time.walk_time;
-                        } else {
-                            altTime = times[closestNode] + (edge.time.ride_time === -1 ? edge.time.walk_time : Math.min(edge.time.walk_time, edge.time.ride_time));
-                        }
-
-                        if (selectedStrategy.value === 'distance' && altDist < distances[edge.node]) {
-                            distances[edge.node] = altDist;
-                            previous[edge.node] = closestNode;
-                        } else if (selectedStrategy.value === 'time' && altTime < times[edge.node]) {
-                            times[edge.node] = altTime;
-                            previous[edge.node] = closestNode;
-                        }
-                    });
-                }
-
-                const path = [];
-                let currentNode = end;
+                let fullPath = [];
                 totalDistance.value = 0;
                 totalTime.value = 0;
-                totalWalkTime.value = 0;
                 totalRideTime.value = 0;
+                totalWalkTime.value = 0;
 
-                while (currentNode) {
-                    path.unshift(currentNode);
-                    const prevNode = previous[currentNode];
-                    if (prevNode) {
-                        const edge = graph[prevNode].edges.find(e => e.node === currentNode);
-                        totalDistance.value += edge.distance;
-                        if (selectedStrategy.value === 'time') {
-                            const time = selectedTransport.value === 'walk' ? edge.time.walk_time : (edge.time.ride_time !== -1 && edge.time.ride_time < edge.time.walk_time ? edge.time.ride_time : edge.time.walk_time);
-                            totalTime.value += time;
-                            if (selectedTransport.value === 'bike') {
-                                totalWalkTime.value += edge.time.walk_time;
-                                if (edge.time.ride_time !== -1) {
-                                    totalRideTime.value += edge.time.ride_time;
-                                }
+                function calculatePath(from, to) {
+                    const nodes = new Set(Object.keys(graph));
+                    const distances = {};
+                    const times = {};
+                    const previous = {};
+
+                    nodes.forEach(node => {
+                        distances[node] = Infinity;
+                        times[node] = Infinity;
+                        previous[node] = null;
+                    });
+
+                    distances[from] = 0;
+                    times[from] = 0;
+
+                    while (nodes.size) {
+                        const closestNode = [...nodes].reduce((minNode, node) =>
+                            selectedStrategy.value === 'distance' ?
+                            (distances[node] < distances[minNode] ? node : minNode) :
+                            (times[node] < times[minNode] ? node : minNode)
+                        , [...nodes][0]);
+
+                        if (closestNode === to) break;
+
+                        nodes.delete(closestNode);
+
+                        graph[closestNode].edges.forEach(edge => {
+                            const altDist = distances[closestNode] + edge.distance;
+                            let altTime;
+                            if (selectedTransport.value === 'walk') {
+                                altTime = times[closestNode] + edge.time.walk_time;
+                            } else {
+                                altTime = times[closestNode] + (edge.time.ride_time === -1 ? edge.time.walk_time : Math.min(edge.time.walk_time, edge.time.ride_time));
                             }
-                        }
+
+                            if (selectedStrategy.value === 'distance' && altDist < distances[edge.node]) {
+                                distances[edge.node] = altDist;
+                                previous[edge.node] = closestNode;
+                            } else if (selectedStrategy.value === 'time' && altTime < times[edge.node]) {
+                                times[edge.node] = altTime;
+                                previous[edge.node] = closestNode;
+                            }
+                        });
                     }
-                    currentNode = prevNode;
+
+                    const path = [];
+                    let currentNode = to;
+
+                    while (currentNode) {
+                        path.unshift(currentNode);
+                        currentNode = previous[currentNode];
+                    }
+
+                    return { path, distances, times };
                 }
 
-                route.value = path;
+                function findBestPath(start, end, waypoints) {
+                    if (waypoints.length === 0) {
+                        return calculatePath(start, end).path;
+                    }
+                    
+                    const permutations = permute(waypoints);
+                    let bestPath = [];
+                    let bestDistance = Infinity;
+                    let bestTime = Infinity;
+
+                    permutations.forEach(perm => {
+                        let currentPath = [];
+                        let currentDistance = 0;
+                        let currentTime = 0;
+                        let valid = true;
+
+                        let prevNode = start;
+                        for (let waypoint of perm) {
+                            const { path: segment, distances, times } = calculatePath(prevNode, waypoint);
+                            if (segment.length === 0) {
+                                valid = false;
+                                break;
+                            }
+                            currentPath = currentPath.concat(segment.slice(0, -1));
+                            currentDistance += distances[waypoint];
+                            currentTime += times[waypoint];
+                            prevNode = waypoint;
+                        }
+
+                        const { path: finalSegment, distances: finalDistances, times: finalTimes } = calculatePath(prevNode, end);
+                        if (finalSegment.length === 0) {
+                            valid = false;
+                        }
+
+                        if (valid) {
+                            currentPath = currentPath.concat(finalSegment);
+                            currentDistance += finalDistances[end];
+                            currentTime += finalTimes[end];
+
+                            if (selectedStrategy.value === 'distance' && currentDistance < bestDistance) {
+                                bestDistance = currentDistance;
+                                bestPath = currentPath;
+                            } else if (selectedStrategy.value === 'time' && currentTime < bestTime) {
+                                bestTime = currentTime;
+                                bestPath = currentPath;
+                            }
+                        }
+                    });
+
+                    totalDistance.value = bestDistance;
+                    totalTime.value = bestTime;
+                    return bestPath;
+                }
+
+                const permute = (arr) => {
+                    if (arr.length <= 1) return [arr];
+                    const result = [];
+                    for (let i = 0; i < arr.length; i++) {
+                        const rest = permute(arr.slice(0, i).concat(arr.slice(i + 1)));
+                        rest.forEach(r => result.push([arr[i]].concat(r)));
+                    }
+                    return result;
+                };
+
+                const bestPath = findBestPath(start, end, waypoints);
+                route.value = bestPath;
+
+                // Recalculate times based on the final path
+                totalDistance.value = 0;
+                totalTime.value = 0;
+                totalRideTime.value = 0;
+                totalWalkTime.value = 0;
+                for (let i = 0; i < bestPath.length - 1; i++) {
+                    const from = bestPath[i];
+                    const to = bestPath[i + 1];
+                    const edge = graph[from].edges.find(e => e.node === to);
+
+                    totalDistance.value += edge.distance;
+                    if (selectedTransport.value === 'walk' || edge.time.ride_time === -1) {
+                        totalWalkTime.value += edge.time.walk_time;
+                    } else {
+                        totalRideTime.value += edge.time.ride_time;
+                    }
+                }
+                totalTime.value = totalWalkTime.value + totalRideTime.value;
 
                 resetEdgeColors();
-                highlightPath(path);
+                highlightPath(route.value);
             }
 
             function resetEdgeColors() {
@@ -365,11 +491,16 @@
                 }
             }
 
+            function removeWaypoint(index) {
+                selectedWaypoints.value.splice(index, 1);
+            }
+
             return {
                 graphNames, selectedGraph, network, startNodeSearch, endNodeSearch,
                 selectedStartNode, selectedEndNode, selectedStrategy, selectedTransport,
                 filteredStartNodes, filteredEndNodes, loadGraph, highlightStartNode, 
-                highlightEndNode, planRoute, route, totalDistance, totalTime, totalWalkTime, totalRideTime
+                highlightEndNode, planRoute, route, totalDistance, totalTime, totalRideTime, totalWalkTime,
+                waypointMode, toggleWaypointMode, selectedWaypoints, removeWaypoint
             };
         }
     }).mount('#app');
