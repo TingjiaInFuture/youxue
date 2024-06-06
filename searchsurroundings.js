@@ -6,6 +6,7 @@ import graph4 from './json/graph4.js';
 import graph5 from './json/graph5.js';
 import sights_list from './json/SightsInfo.js';
 const graphs = { graph1, graph2, graph3, graph4, graph5 };
+let selectedAreaName;
 const SearchSurroundings = {
   template: `
   <div class="app-surroundings">
@@ -15,6 +16,7 @@ const SearchSurroundings = {
       <select v-model="selectedAreaId" @change="loadGraph">
       <option v-for="sight in sights" :value="sight.areaId">{{ sight.nameSight }}</option>
     </select>
+    <button id="writeButton" class="btn btn-info" @click="towrite"><i class="fas fa-pen"></i></button>
   </div>
   <div class="selector-wrapper">
       <input type="text" v-model="nodeSearch" placeholder="请输入设施类别...">
@@ -58,6 +60,8 @@ const SearchSurroundings = {
     let selectedGraph = ref(graphNames.value[0]);
     const sights = ref(sights_list.item);
     const selectedAreaId = ref(sights.value[0].areaId);
+    selectedAreaName = ref(sights.value[0].nameSight);
+    selectedAreaName = computed(() => sights.value[selectedAreaId].nameSight);
     selectedGraph = computed(() => 'graph' + (selectedAreaId.value % 5 + 1));
     const graphFilter = ref('');
     const nodeSearch = ref('');
@@ -66,7 +70,9 @@ const SearchSurroundings = {
     const maxDistance = ref(100);
     const results = ref([]);
     const selectedTypes = ref([]);
-
+    const towrite = () => {
+        window.towrite(selectedAreaName.value);
+    }
     const filteredGraphs = computed(() => {
         return graphNames.filter(g => g.toLowerCase().includes(graphFilter.value.toLowerCase()));
     });
@@ -156,31 +162,61 @@ const SearchSurroundings = {
         });
         network.value.redraw();
     }
+    function dijkstra(graph, startNode) {
+        const distances = {};
+        const previous = {};
+        const queue = new Set(Object.keys(graph));
 
+        queue.forEach(node => {
+            distances[node] = Infinity;
+            previous[node] = null;
+        });
+
+        distances[startNode] = 0;
+
+        while (queue.size) {
+            const currentNode = [...queue].reduce((minNode, node) => (
+                distances[node] < distances[minNode] ? node : minNode
+            ));
+
+            queue.delete(currentNode);
+
+            graph[currentNode].edges.forEach(edge => {
+                const altDistance = distances[currentNode] + edge.distance;
+                if (altDistance < distances[edge.node]) {
+                    distances[edge.node] = altDistance;
+                    previous[edge.node] = currentNode;
+                }
+            });
+        }
+
+        return { distances, previous };
+    }
     function search() {
         results.value = [];
-        const targetNode = graphs[selectedGraph.value][selectedNode.value];
+        const graph = graphs[selectedGraph.value];
+        const targetNode = graph[selectedNode.value];
+
         if (targetNode) {
+            const { distances } = dijkstra(graph, selectedNode.value);
             let nodeDistances = [];
-            for (let node in graphs[selectedGraph.value]) {
-                if (node !== selectedNode.value) {
-                    graphs[selectedGraph.value][node].edges.forEach(edge => {
-                        if (edge.node === selectedNode.value && edge.distance <= maxDistance.value) {
-                            nodeDistances.push({
-                                name: node,
-                                distance: edge.distance,
-                                type: graphs[selectedGraph.value][node].node_type // 假设节点的类型信息存储在 node_type 属性中
-                            });
-                        }
+
+            for (let node in distances) {
+                if (node !== selectedNode.value && distances[node] <= maxDistance.value) {
+                    nodeDistances.push({
+                        name: node,
+                        distance: distances[node],
+                        type: graph[node].node_type
                     });
                 }
             }
+
             nodeDistances.sort((a, b) => a.distance - b.distance);
             results.value = nodeDistances.length > 0 ? nodeDistances : [{ name: "No nodes within the specified range.", distance: "-", type: "N/A" }];
         }
     }
 
-    return { graphNames,selectedGraph, graphFilter, filteredGraphs, network, sights,selectedAreaId,maxDistance, results, search, filteredNodes, nodeSearch, selectedNode, allNodeTypes, filteredResults, loadGraph, filterNodes, selectNodeFromDropdown, selectedTypes };
+    return { graphNames,selectedGraph, graphFilter, filteredGraphs, network, sights,selectedAreaId,maxDistance, results, search, filteredNodes, nodeSearch, selectedNode, allNodeTypes, filteredResults, loadGraph, filterNodes, selectNodeFromDropdown,selectedAreaName,selectedTypes,towrite,dijkstra };
   }
 }
 

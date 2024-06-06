@@ -14,6 +14,7 @@ const SearchRoutes = {
   <select v-model="selectedAreaId" @change="loadGraph">
     <option v-for="sight in sights" :value="sight.areaId">{{ sight.nameSight }}</option>
   </select>
+  <button id="writeButton" class="btn btn-info" @click="towrite"><i class="fas fa-pen"></i></button>
 </div>
 <div class="selector-wrapper">
   <input type="text" v-model="startNodeSearch" placeholder="请输入出发地点...">
@@ -76,6 +77,14 @@ const SearchRoutes = {
     let selectedGraph = ref(graphNames.value[0]);
     const sights = ref(sights_list.item);
     const selectedAreaId = ref(sights.value[0].areaId);
+    let selectedAreaName = ref(sights.value[0].nameSight);
+    selectedAreaName = computed(() => {
+        if (sights.value[selectedAreaId.value]) {
+            return sights.value[selectedAreaId.value].nameSight;
+        } else {
+            return '';
+        }
+    });
     selectedGraph = computed(() => 'graph' + (selectedAreaId.value % 5 + 1));
     const startNodeSearch = ref('');
     const endNodeSearch = ref('');
@@ -93,7 +102,9 @@ const SearchRoutes = {
     const selectedWaypoints = ref([]);
     let previousHighlightedEdges = [];
     let previousEndNode = null;
-
+    const towrite = () => {
+        window.towrite(selectedAreaName.value);
+    }
             watch(selectedStartNode, () => highlightStartNode());
             watch(selectedEndNode, () => highlightEndNode());
 
@@ -390,10 +401,10 @@ const SearchRoutes = {
 
             return {
                 graphNames, selectedGraph, network, startNodeSearch, endNodeSearch,sights,selectedAreaId,
-                selectedStartNode, selectedEndNode, selectedStrategy, selectedTransport,
+                selectedStartNode, selectedEndNode, selectedStrategy, selectedTransport,selectedAreaName,
                 filteredStartNodes, filteredEndNodes, loadGraph, highlightStartNode,
                 highlightEndNode, planRoute, route, totalDistance, totalTime, totalRideTime, totalWalkTime,
-                waypointMode, toggleWaypointMode, selectedWaypoints, removeWaypoint
+                waypointMode, toggleWaypointMode, selectedWaypoints, removeWaypoint,towrite
             };
   }
 }
