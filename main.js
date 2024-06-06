@@ -25,14 +25,32 @@ function renderDiary(diary, diaryContainer) {
     content.textContent = diaryText.slice(secondLineEndIndex + 1);
     content.style.display = 'none';
 
+    const ratingInput = document.createElement('input');
+    ratingInput.type = 'number';
+    ratingInput.id = 'rating';
+    ratingInput.name = 'rating';
+    ratingInput.min = '1';
+    ratingInput.max = '5';
+    ratingInput.style.display = 'none';  // 将评分输入框默认设置为隐藏
+
+    const ratingButton = document.createElement('button');
+    ratingButton.textContent = '提交评分';
+    ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
+    ratingButton.onclick = function() {
+        rateDiary(diary.id, document.getElementById('rating').value);
+    };
+
     const toggleContentButton = document.createElement('button');
     toggleContentButton.className = 'btn btn-primary';
     toggleContentButton.textContent = '查看详情';
     toggleContentButton.onclick = function () {
         const displayStyle = content.style.display === 'none' ? 'block' : 'none';
         content.style.display = displayStyle;
+        ratingInput.style.display = displayStyle;  // 将评分输入框的显示状态与日记内容的显示状态绑定在一起
+        ratingButton.style.display = displayStyle;  // 将评分按钮的显示状态与日记内容的显示状态绑定在一起
         toggleContentButton.textContent = displayStyle === 'none' ? '查看详情' : '收起';
     };
+
 
     const deleteButton = document.createElement('button');
     deleteButton.className = 'btn btn-danger';
@@ -44,6 +62,8 @@ function renderDiary(diary, diaryContainer) {
     cardBody.appendChild(location);
     cardBody.appendChild(title);
     cardBody.appendChild(content);
+    cardBody.appendChild(ratingInput);
+    cardBody.appendChild(ratingButton);
     cardBody.appendChild(toggleContentButton);
     cardBody.appendChild(deleteButton);
 
