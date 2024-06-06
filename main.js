@@ -28,7 +28,7 @@ function renderDiary(diary, diaryContainer) {
     const toggleContentButton = document.createElement('button');
     toggleContentButton.className = 'btn btn-primary';
     toggleContentButton.textContent = '查看详情';
-    toggleContentButton.onclick = function() {
+    toggleContentButton.onclick = function () {
         const displayStyle = content.style.display === 'none' ? 'block' : 'none';
         content.style.display = displayStyle;
         toggleContentButton.textContent = displayStyle === 'none' ? '查看详情' : '收起';
@@ -37,7 +37,7 @@ function renderDiary(diary, diaryContainer) {
     const deleteButton = document.createElement('button');
     deleteButton.className = 'btn btn-danger';
     deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteButton.onclick = function() {
+    deleteButton.onclick = function () {
         deleteDiary(diary.id);
     };
 
@@ -264,7 +264,7 @@ function toggleWriteForm() {
 let area = 'Beijing'; // This should be dynamically set based on application's logic
 
 // 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const writeForm = document.getElementById('writeForm');
@@ -274,19 +274,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleWriteFormButton = document.getElementById('toggleWriteForm');
     document.getElementById('diaryLocation').value = area;
 
-    if (loginForm) loginForm.addEventListener('submit', login);
-    if (registerForm) registerForm.addEventListener('submit', register);
-    if (writeForm) writeForm.addEventListener('submit', addDiary);
-    if (searchForm) searchForm.addEventListener('submit', searchDiary);
-    if (toggleButton) toggleButton.addEventListener('click', toggleForms);
-    if (toggleSearchFormButton) toggleSearchFormButton.addEventListener('click', toggleSearchForm);
-    if (toggleWriteFormButton) toggleWriteFormButton.addEventListener('click', toggleWriteForm);
 
     // 为导航链接添加点击事件监听器
     const navLinks = document.querySelectorAll('.nav-link');
     const contentSections = document.querySelectorAll('.content-section');
     navLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
+        link.addEventListener('click', function (event) {
             event.preventDefault();
             contentSections.forEach(section => {
                 section.style.display = 'none';
