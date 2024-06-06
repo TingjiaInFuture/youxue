@@ -45,12 +45,17 @@ function renderDiary(diary, diaryContainer) {
     const toggleContentButton = document.createElement('button');
     toggleContentButton.className = 'btn btn-primary';
     toggleContentButton.textContent = '查看详情';
-    toggleContentButton.onclick = function () {
+    toggleContentButton.onclick = async function () {
         const displayStyle = content.style.display === 'none' ? 'block' : 'none';
         content.style.display = displayStyle;
         ratingInput.style.display = displayStyle;  // 将评分输入框的显示状态与日记内容的显示状态绑定在一起
         ratingButton.style.display = displayStyle;  // 将评分按钮的显示状态与日记内容的显示状态绑定在一起
         toggleContentButton.textContent = displayStyle === 'none' ? '查看详情' : '收起';
+        
+        // 如果日记内容被展示出来，那么增加查看次数
+        if (displayStyle === 'block') {
+            await increaseViewCount(diary.id);
+        }
     };
 
 
