@@ -37,6 +37,7 @@ function renderDiary(diary, diaryContainer) {
     ratingButton.textContent = '提交评分';
     ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
     ratingButton.onclick = function() {
+        console.log(document.getElementById('rating').value);
         rateDiary(diary.id, document.getElementById('rating').value);
     };
 
