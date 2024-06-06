@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美食推荐</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        main {
+            padding: 2em;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h2 {
+            color: #4a90e2;
+            margin-bottom: 1em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            margin-bottom: 2em;
+            background: white;
+            padding: 1.5em;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, input[type="text"] {
+            padding: 0.5em;
+            font-size: 1em;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+            padding: 0.75em;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #357ab8;
+        }
+
+        #food-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2em;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .food-item {
+            background-color: white;
+            width: calc(33.333% - 2em);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .food-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .food-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .food-item-content {
+            padding: 1em;
+        }
+
+        .food-item-content h3 {
+            margin: 0 0 0.5em 0;
+            font-size: 1.25em;
+            color: #4a90e2;
+        }
+
+        .food-item-content p {
+            margin: 0.5em 0;
+            color: #666;
+        }
+
+        .food-item-content p span {
+            display: inline-block;
+            margin-right: 0.5em;
+        }
+
+        #search-info {
+            margin-bottom: 1em;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>美食推荐</h1>
+        </header>
+        <main>
+            <section id="filters">
+                <h2>筛选</h2>
+                <form @submit.prevent="applyFilters">
+                    <label for="location">地点：</label>
+                    <select v-model="selectedLocation" id="location">
+                        <option v-for="location in locations" :key="location.name" :value="location.name">{{ location.name }}</option>
+                    </select>
+                    
+                    <label for="cuisine">菜系：</label>
+                    <select v-model="selectedCuisine" id="cuisine">
+                        <option value="">所有</option>
+                        <option v-for="cuisine in cuisines" :key="cuisine">{{ cuisine }}</option>
+                    </select>
+                    
+                    <label for="sort-by">排序依据：</label>
+                    <select v-model="sortBy" id="sort-by">
+                        <option value="popularity">热度</option>
+                        <option value="rating">评分</option>
+                        <option value="distance">距离</option>
+                        <option value="comprehensive">综合推荐</option>
+                    </select>
+                    
+                    <button type="submit">应用筛选</button>
+                </form>
+            </section>
+            
+            <section id="search">
+                <h2>搜索</h2>
+                <form @submit.prevent="searchFood">
+                    <input type="text" v-model="searchQuery" placeholder="输入菜名或饭店名称">
+                    <button type="submit">搜索</button>
+                </form>
+                <div id="search-info">你可以输入菜名、所在饭店名称进行搜索：</div>
+            </section>
+            
+            <section id="results">
+                <h2>结果</h2>
+                <ul id="food-list">
+                    <li v-for="food in displayedFoods" :key="uniqueKey(food)" class="food-item">
+                        <img :src="food.image" alt="food image">
+                        <div class="food-item-content">
+                            <h3>{{ food.name }}</h3>
+                            <p>{{ food.cuisine }}</p>
+                            <p>
+                                <span>评分：{{ food.rating }}</span>
+                                <span>热度：{{ food.popularity }}</span>
+                                <span>距离：{{ food.distance }}m</span>
+                            </p>
+                            <p>所在饭店：{{ food.restaurant }}</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function loadScript(url, callback) {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+            script.onload = callback;
+            document.head.appendChild(script);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const { createApp } = Vue;
+
+            loadScript('foodData.js', () => {
+                createApp({
+                    data() {
+                        return {
+                            locations: foodData,
+                            selectedLocation: '',
+                            selectedCuisine: '',
+                            sortBy: 'popularity',
+                            searchQuery: '',
+                            displayedFoods: [],
+                            cuisines: ["川菜", "鲁菜", "淮扬菜", "粤菜", "浙江菜", "闽菜", "湘菜", "徽菜"]
+                        };
+                    },
+                    methods: {
+                        applyFilters() {
+                            if (this.selectedLocation) {
+                                const location = this.locations.find(loc => loc.name === this.selectedLocation);
+                                if (location) {
+                                    let filteredFoods = location.dishes;
+                                    if (this.selectedCuisine) {
+                                        filteredFoods = filteredFoods.filter(food => food.cuisine === this.selectedCuisine);
+                                    }
+                                    this.displayedFoods = this.getTop10(filteredFoods);
+                                }
+                            }
+                        },
+                        searchFood() {
+                            if (this.selectedLocation) {
+                                const location = this.locations.find(loc => loc.name === this.selectedLocation);
+                                if (location) {
+                                    let results = location.dishes.filter(food =>
+                                        food.name.includes(this.searchQuery) ||
+                                        food.cuisine.includes(this.searchQuery) ||
+                                        food.restaurant.includes(this.searchQuery)
+                                    );
+                                    this.displayedFoods = this.getTop10(results);
+                                }
+                            }
+                        },
+                        getTop10(foods) {
+                            return foods.sort((a, b) => {
+                                if (this.sortBy === 'popularity') {
+                                    return b.popularity - a.popularity;
+                                } else if (this.sortBy === 'rating') {
+                                    return b.rating - a.rating;
+                                } else if (this.sortBy === 'distance') {
+                                    return a.distance - b.distance;
+                                } else if (this.sortBy === 'comprehensive') {
+                                    return this.comprehensiveScore(b) - this.comprehensiveScore(a);
+                                }
+                            }).slice(0, 10);
+                        },
+                        comprehensiveScore(food) {
+                            const normPopularity = food.popularity / 100; 
+                            const normRating = food.rating / 5; 
+                            const normDistance = 1 - (food.distance / 3000); 
+
+                            return (normPopularity * 0.4) + (normRating * 0.4) + (normDistance * 0.2);
+                        },
+                        uniqueKey(food) {
+                            return `${food.name}-${food.restaurant}-${food.location}`;
+                        }
+                    },
+                    mounted() {
+                        this.selectedLocation = this.locations.length > 0 ? this.locations[0].name : '';
+                        this.applyFilters();
+                    }
+                }).mount('#app');
+            });
+        });
+    </script>
+</body>
+</html>
