@@ -80,7 +80,7 @@ const SearchRoutes = {
     let selectedAreaName = ref(sights.value[0].nameSight);
     selectedAreaName = computed(() => {
         if (sights.value[selectedAreaId.value]) {
-            return sights.value[selectedAreaId.value].nameSight;
+            return sights.value[selectedAreaId.value-6].nameSight;
         } else {
             return '';
         }
