@@ -261,6 +261,23 @@ let area = 'Beijing'; // This should be dynamically set based on application's l
 function updateArea(newArea) {
     area = newArea;
 }
+function towrite(newArea) {
+    updateArea(newArea);
+
+    // Hide all content sections
+    const contentSections = document.querySelectorAll('.content-section');
+    contentSections.forEach(section => {
+        section.style.display = 'none';
+    });
+
+    // Show the diary section
+    const diarySection = document.querySelector('#日记');
+    diarySection.style.display = 'block';
+
+    // Fetch and render diaries
+    fetchREDiaries();
+}
+
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('diaryLocation').value = area;
