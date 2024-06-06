@@ -61,7 +61,7 @@ const SearchSurroundings = {
     const sights = ref(sights_list.item);
     const selectedAreaId = ref(sights.value[0].areaId);
     selectedAreaName = ref(sights.value[0].nameSight);
-    selectedAreaName = computed(() => sights.value[selectedAreaId].nameSight);
+    selectedAreaName = computed(() => sights.value[selectedAreaId-6].nameSight);
     selectedGraph = computed(() => 'graph' + (selectedAreaId.value % 5 + 1));
     const graphFilter = ref('');
     const nodeSearch = ref('');
