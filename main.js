@@ -27,18 +27,19 @@ function renderDiary(diary, diaryContainer) {
 
     const ratingInput = document.createElement('input');
     ratingInput.type = 'number';
-    ratingInput.id = 'rating';
+    ratingInput.id = 'rating-' + diary.id;  // 唯一id
     ratingInput.name = 'rating';
     ratingInput.min = '1';
     ratingInput.max = '5';
     ratingInput.style.display = 'none';  // 将评分输入框默认设置为隐藏
 
+    // 在提交评分时，根据唯一id获取正确的评分输入框
     const ratingButton = document.createElement('button');
     ratingButton.textContent = '提交评分';
     ratingButton.style.display = 'none';  // 将评分按钮默认设置为隐藏
-    ratingButton.onclick = function() {
-        console.log(document.getElementById('rating').value);
-        rateDiary(diary.id, document.getElementById('rating').value);
+    ratingButton.onclick = function () {
+        console.log(document.getElementById('rating-' + diary.id).value);
+        rateDiary(diary.id, document.getElementById('rating-' + diary.id).value);
     };
 
     const toggleContentButton = document.createElement('button');
@@ -282,7 +283,7 @@ let area = 'Beijing'; // This should be dynamically set based on application's l
 function updateArea(newArea) {
     area = newArea;
 }
-window.towrite = function(newArea) {
+window.towrite = function (newArea) {
     updateArea(newArea);
 
     // Hide all content sections
