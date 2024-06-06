@@ -28,12 +28,12 @@ nav ul li a {
 }
 
 main {
-    margin: 0 auto;
-    width: 80%;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  width: 80%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 #diaryContainer div {
@@ -54,7 +54,9 @@ main {
 form {
     margin-bottom: 20px;
 }
-
+p {
+  text-align: center;
+}
 input[type="text"],
 input[type="password"],
 textarea {
@@ -68,15 +70,15 @@ textarea {
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -106,18 +108,373 @@ input[type="submit"] {
 }
 
 #searchButton, #writeButton {
-    align-self: flex-start;
-    width: auto;
-    padding: 10px 20px;
-    margin: 10px;
+  align-self: flex-start;
+  width: auto;
+  padding: 10px 20px;
+  margin: 10px;
 }
 
 #searchForm, #writeForm {
-    transition: max-height 0.2s ease-out;
-    overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  overflow: hidden;
+}
+input[readonly] {
+  background-color: #e9ecef;
+  color: #6c757d;
 }
 
-input[readonly] {
-    background-color: #e9ecef;
-    color: #6c757d;
+.radio-group label {
+    display: inline-block;
+    margin-right: 10px;
+}
+.route_root {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+    margin: 0;
+}
+#network {
+    width: 80%;
+    height: 600px;
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+#network-alt {
+  width: 80%;
+  height: 600px;
+  border: 1px solid #ccc;
+  margin: 20px auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.selector-wrapper {
+    width: 80%;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+select, input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.highlighted {
+    font-weight: bold;
+    color: #d10000;
+    background-color: #ffd2d2;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(209,0,0,0.2);
+    text-align: center;
+}
+.route_title {
+    text-align: center;
+    color: #333;
+}
+.result-item, .statistics {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+.result-item:last-child, .statistics:last-child {
+    border-bottom: none;
+}
+.no-results {
+    text-align: center;
+    color: #999;
+}
+.start-node {
+    border: 3px solid #f00 !important;
+}
+.end-node {
+    border: 3px solid #00f !important;
+}
+.path-edge {
+    color: black !important;
+    width: 3px
+    !important;
+}
+.mainpage-section:hover{
+    border-color: #004494;
+    transform: scale(1.03);
+}
+/* 展示景点 */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+
+  .item {
+    width: calc(49% - 20px);
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* 添加过渡效果 */
+    border: 2px solid transparent; /* 添加透明边框 */
+    padding: 5px; /* 添加内边距 */
+    box-sizing: border-box; /* 使宽度包含内边距和边框 */
+  }
+  .item:hover{
+    border-color: #004494;
+    transform: scale(1.03);
+  }
+  .item:active {
+    transform: scale(0.95); /* 鼠标按下时缩小 */
+  }
+
+  /* .image-placeholder {
+    width: 100%;
+    height: 300px;
+    background-color: #ddd;
+    border-radius: 10px 10px 0 0;
+  } */
+
+  .item-info {
+    padding: 10px;
+  }
+
+  .item-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .stat-box {
+    background-color: #eee;
+    border-radius: 5px;
+    padding: 2px 5px;
+  }
+  .item-stats {
+    display: flex;
+    justify-content: space-between;
+  }
+  .view-icon {
+    color: #1e90ff;
+  }
+  .score-icon {
+    color: #1f78d7;
+  }
+
+  .type-icon {
+    color: #70a7e1;
+  }.score-icon.active,
+  .badscore-icon.active {
+    color: #ff4500; /* 选中时的颜色 */
+  }
+
+  .plus-one {
+    position: absolute;
+    animation: fade 1s forwards;
+  }
+
+  @keyframes fade {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+  }
+  .result-item {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.result-item div {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  width: calc(75% / 3 - 20px);
+  box-sizing: border-box;
+}
+
+.no-results {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+  /* recommendation */
+  .container-pages {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.btn {
+    width: 30%;
+    background-color: #0056b3;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align:center;
+}
+
+.btn:hover {
+    background-color: #004494;
+}
+
+.select {
+    width: 35%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.btn-alt {
+  width: 80%;
+}
+.building-icon {
+  color: #d71f1f;
+}
+.map-icon {
+  color: #f1e615;
+}
+.road-icon {
+  color: #1f78d7;
+}
+.item-img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+/* warning */
+.warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background-color: red;
+  color: white;
+  text-align: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: showWarning 3s forwards;
+}
+
+@keyframes showWarning {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+/* food */
+.food-body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+.food-header {
+  background-color: #4a90e2;
+  color: white;
+  padding: 1em 0;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.food-main {
+  padding: 2em;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.food-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-bottom: 2em;
+  background: white;
+  padding: 1.5em;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  font-weight: bold;
+}
+
+#food-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+  padding: 0;
+  list-style-type: none;
+}
+
+.food-item {
+  background-color: white;
+  width: calc(33.333% - 2em);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.food-item:hover {
+  transform: translateY(-5px);
+}
+
+.food-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.food-item-content {
+  padding: 1em;
+}
+
+.food-item-content h3 {
+  margin: 0 0 0.5em 0;
+  font-size: 1.25em;
+  color: #4a90e2;
+}
+
+.food-item-content p {
+  margin: 0.5em 0;
+  color: #666;
+}
+
+.food-item-content p span {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+#search-info {
+  margin-bottom: 1em;
+  font-size: 0.9em;
+  color: #666;
 }
