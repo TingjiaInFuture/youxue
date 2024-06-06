@@ -107,8 +107,8 @@ async function addDiary(event) {
         body: JSON.stringify({ diary: diaryText, authorId })
     });
 
-        document.getElementById('writeForm').reset();
-        fetchREDiaries();
+    document.getElementById('writeForm').reset();
+    fetchREDiaries();
 
 }
 
@@ -258,7 +258,9 @@ function toggleWriteForm() {
 
 // Initialize the area variable
 let area = 'Beijing'; // This should be dynamically set based on application's logic
-
+function updateArea(newArea) {
+    area = newArea;
+}
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('diaryLocation').value = area;
