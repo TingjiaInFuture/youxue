@@ -303,4 +303,3 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchREDiaries();
 });
 
-export default towrite;
