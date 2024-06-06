@@ -302,3 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchREDiaries();
 });
+
+module.exports = {
+    towrite
+}
