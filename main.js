@@ -1,5 +1,6 @@
 const apiBaseUrl = 'https://youxueserver-a-wcwgrndlcd.cn-hangzhou.fcapp.run';
 
+// Function to render a diary
 function renderDiary(diary, diaryContainer) {
     const diaryCard = document.createElement('div');
     diaryCard.className = 'card my-3';
@@ -7,14 +8,21 @@ function renderDiary(diary, diaryContainer) {
     const cardBody = document.createElement('div');
     cardBody.className = 'card-body';
 
+    const diaryText = diary.diary;
+    const firstLineEndIndex = diaryText.indexOf('\n');
+    const secondLineEndIndex = diaryText.indexOf('\n', firstLineEndIndex + 1);
+
+    const location = document.createElement('h6');
+    location.className = 'card-subtitle mb-2 text-muted';
+    location.textContent = diaryText.slice(0, firstLineEndIndex);
+
     const title = document.createElement('h5');
     title.className = 'card-title';
-    const firstLineEndIndex = diary.diary.indexOf('\n');
-    title.textContent = diary.diary.slice(0, firstLineEndIndex);
+    title.textContent = diaryText.slice(firstLineEndIndex + 1, secondLineEndIndex);
 
     const content = document.createElement('p');
     content.className = 'card-text';
-    content.textContent = diary.diary.slice(firstLineEndIndex + 1);
+    content.textContent = diaryText.slice(secondLineEndIndex + 1);
     content.style.display = 'none';
 
     const toggleContentButton = document.createElement('button');
@@ -24,29 +32,6 @@ function renderDiary(diary, diaryContainer) {
         const displayStyle = content.style.display === 'none' ? 'block' : 'none';
         content.style.display = displayStyle;
         toggleContentButton.textContent = displayStyle === 'none' ? '查看详情' : '收起';
-        ratingInput.style.display = displayStyle;
-        ratingButton.style.display = displayStyle;
-        if (displayStyle === 'block') {
-            increaseViewCount(diary.id);
-        }
-    };
-
-    const ratingInput = document.createElement('input');
-    ratingInput.type = 'number';
-    ratingInput.className = 'form-control my-2';
-    ratingInput.id = 'rating';
-    ratingInput.name = 'rating';
-    ratingInput.min = '1';
-    ratingInput.max = '5';
-    ratingInput.placeholder = '评分 (1-5)';
-    ratingInput.style.display = 'none';
-
-    const ratingButton = document.createElement('button');
-    ratingButton.className = 'btn btn-success';
-    ratingButton.textContent = '提交评分';
-    ratingButton.style.display = 'none';
-    ratingButton.onclick = function() {
-        rateDiary(diary.id, ratingInput.value);
     };
 
     const deleteButton = document.createElement('button');
@@ -56,16 +41,16 @@ function renderDiary(diary, diaryContainer) {
         deleteDiary(diary.id);
     };
 
+    cardBody.appendChild(location);
     cardBody.appendChild(title);
     cardBody.appendChild(content);
     cardBody.appendChild(toggleContentButton);
-    cardBody.appendChild(ratingInput);
-    cardBody.appendChild(ratingButton);
     cardBody.appendChild(deleteButton);
 
     diaryCard.appendChild(cardBody);
     diaryContainer.appendChild(diaryCard);
 }
+
 
 async function fetchREDiaries() {
     const response = await fetch(`${apiBaseUrl}/diaries/recommended`);
@@ -104,11 +89,16 @@ async function rateDiary(diaryId, rating) {
     }
 }
 
+// Function to add a diary
 async function addDiary(event) {
     event.preventDefault();
-    const diaryTextElement = document.getElementById('diaryText');
-    const diaryText = diaryTextElement.value;
+    const diaryLocation = document.getElementById('diaryLocation').value;
+    const diaryTitle = document.getElementById('diaryTitle').value;
+    const diaryContent = document.getElementById('diaryContent').value;
     const authorId = localStorage.getItem('userId');
+
+    const diaryText = `${diaryLocation}\n${diaryTitle}\n${diaryContent}`;
+
     const response = await fetch(`${apiBaseUrl}/diaries`, {
         method: 'POST',
         headers: {
@@ -116,13 +106,13 @@ async function addDiary(event) {
         },
         body: JSON.stringify({ diary: diaryText, authorId })
     });
+
     const data = await response.json();
     if (data.diaryId) {
-        alert('Diary added successfully!');
-        diaryTextElement.value = '';
+        document.getElementById('writeForm').reset();
         fetchREDiaries();
     } else {
-        alert('Failed to add diary.');
+        alert('请先登录！');
     }
 }
 
@@ -258,14 +248,20 @@ function toggleSearchForm() {
     }
 }
 
+// Function to toggle the write form and set the location
 function toggleWriteForm() {
     const writeForm = document.getElementById('writeForm');
+    const diaryLocation = document.getElementById('diaryLocation');
     if (writeForm.style.display === 'none' || writeForm.style.display === '') {
+        diaryLocation.value = area; // Set the area as location
         writeForm.style.display = 'block';
     } else {
         writeForm.style.display = 'none';
     }
 }
+
+// Initialize the area variable
+let area = 'Beijing'; // This should be dynamically set based on application's logic
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -276,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.querySelector('#用户 button');
     const toggleSearchFormButton = document.getElementById('toggleSearchForm');
     const toggleWriteFormButton = document.getElementById('toggleWriteForm');
+    document.getElementById('diaryLocation').value = area;
 
     if (loginForm) loginForm.addEventListener('submit', login);
     if (registerForm) registerForm.addEventListener('submit', register);

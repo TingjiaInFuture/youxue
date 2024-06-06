@@ -116,3 +116,8 @@ input[type="submit"] {
     transition: max-height 0.2s ease-out;
     overflow: hidden;
 }
+
+input[readonly] {
+    background-color: #e9ecef;
+    color: #6c757d;
+}

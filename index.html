@@ -15,7 +15,8 @@
         <h1>"天下游"游学系统</h1>
     </header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -61,7 +62,8 @@
         <section id="日记" class="content-section">
             <div class="d-flex flex-column">
                 <div class="mb-2">
-                    <button id="searchButton" class="btn btn-info" onclick="toggleSearchForm()"><i class="fas fa-search"></i> 搜索日记</button>
+                    <button id="searchButton" class="btn btn-info" onclick="toggleSearchForm()"><i
+                            class="fas fa-search"></i> 搜索日记</button>
                     <span id="diaryCount" class="ml-2"></span>
                     <form id="searchForm" onsubmit="searchDiary(event)" class="my-2" style="display: none;">
                         <div class="form-group">
@@ -72,15 +74,25 @@
                     </form>
                 </div>
                 <div>
-                    <button id="writeButton" class="btn btn-info" onclick="toggleWriteForm()"><i class="fas fa-pen"></i> 写日记</button>
+                    <button id="writeButton" class="btn btn-info" onclick="toggleWriteForm()"><i class="fas fa-pen"></i>
+                        写日记</button>
                     <form id="writeForm" onsubmit="addDiary(event)" class="my-2" style="display: none;">
                         <div class="form-group">
-                            <label for="diaryText">游学日记内容：</label>
-                            <textarea class="form-control" id="diaryText" name="diaryText" rows="4"></textarea>
+                            <label for="diaryLocation">地点：</label>
+                            <input type="text" class="form-control" id="diaryLocation" name="diaryLocation" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="diaryTitle">标题：</label>
+                            <input type="text" class="form-control" id="diaryTitle" name="diaryTitle">
+                        </div>
+                        <div class="form-group">
+                            <label for="diaryContent">正文：</label>
+                            <textarea class="form-control" id="diaryContent" name="diaryContent" rows="4"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">提交</button>
                     </form>
                 </div>
+
             </div>
             <div id="diaryContainer" class="mt-4"></div>
         </section>
