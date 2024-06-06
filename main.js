@@ -107,13 +107,9 @@ async function addDiary(event) {
         body: JSON.stringify({ diary: diaryText, authorId })
     });
 
-    const data = await response.json();
-    if (data.diaryId) {
         document.getElementById('writeForm').reset();
         fetchREDiaries();
-    } else {
-        alert('请先登录！');
-    }
+
 }
 
 async function deleteDiary(diaryId) {
@@ -265,13 +261,6 @@ let area = 'Beijing'; // This should be dynamically set based on application's l
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const writeForm = document.getElementById('writeForm');
-    const searchForm = document.getElementById('searchForm');
-    const toggleButton = document.querySelector('#用户 button');
-    const toggleSearchFormButton = document.getElementById('toggleSearchForm');
-    const toggleWriteFormButton = document.getElementById('toggleWriteForm');
     document.getElementById('diaryLocation').value = area;
 
 
