@@ -114,6 +114,7 @@ async function rateDiary(diaryId, rating) {
     if (!data.success) {
         console.error('Failed to update rating.');
     }
+    document.getElementById('rating-' + diaryId).value = '';
 }
 
 // Function to add a diary
