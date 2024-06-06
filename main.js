@@ -261,7 +261,7 @@ let area = 'Beijing'; // This should be dynamically set based on application's l
 function updateArea(newArea) {
     area = newArea;
 }
-window.towrite = function(newArea) {
+const towrite =function (newArea) {
     updateArea(newArea);
 
     // Hide all content sections
@@ -302,3 +302,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchREDiaries();
 });
+
+export default towrite;
