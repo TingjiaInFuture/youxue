@@ -5,7 +5,6 @@ import graph3 from './json/graph3.js';
 import graph4 from './json/graph4.js';
 import graph5 from './json/graph5.js';
 import sights_list from './json/SightsInfo.js';
-import towrite from './main.js';
 const graphs = { graph1, graph2, graph3, graph4, graph5 };
 const SearchSurroundings = {
   template: `
@@ -16,7 +15,6 @@ const SearchSurroundings = {
       <select v-model="selectedAreaId" @change="loadGraph">
       <option v-for="sight in sights" :value="sight.areaId">{{ sight.nameSight }}</option>
     </select>
-    <button id="writeButton" class="btn btn-info" @click="towrite(sight.nameSight)"><i class="fas fa-pen"></i></button>
   </div>
   <div class="selector-wrapper">
       <input type="text" v-model="nodeSearch" placeholder="请输入设施类别...">
